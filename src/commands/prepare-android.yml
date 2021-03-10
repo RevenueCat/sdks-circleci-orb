@@ -1,0 +1,11 @@
+# extracted from https://github.com/wordpress-mobile/circleci-orbs/
+description: >
+  Generate Gradle checksums
+steps:
+  - android/accept-licenses
+  - restore-gradle-cache
+  - run:
+      name: Download Dependencies
+      command: ./gradlew androidDependencies
+  - save-gradle-cache
+  - android/restore-build-cache
