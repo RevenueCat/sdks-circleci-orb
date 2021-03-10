@@ -1,0 +1,12 @@
+# extracted from https://github.com/wordpress-mobile/circleci-orbs/
+description: >
+  Cache the contents of ~/.gradle based on the local build files.
+parameters:
+  cache-prefix:
+    type: string
+    default: gradle-{{ .Environment.CIRCLE_JOB }}
+steps:
+  - save_cache:
+      paths:
+        - ~/.gradle
+      key: <<parameters.cache-prefix>>-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}-{{ checksum "build.gradle" }}-{{ checksum "gradle-checksums.txt" }}-{{ checksum "date.txt" }}
