@@ -13,4 +13,3 @@ steps:
         - <<parameters.cache-prefix>>-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}-{{ checksum "build.gradle" }}-{{ checksum "gradle-checksums.txt" }}
         - <<parameters.cache-prefix>>-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}-{{ checksum "build.gradle" }}-
         - <<parameters.cache-prefix>>-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}-
-    
