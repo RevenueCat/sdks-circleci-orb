@@ -1,0 +1,33 @@
+description: >
+  An example on how to use this orb in Android.
+usage:
+  version: 2.1
+  orbs:
+    revenuecat: revenuecat/sdks-common-config@0.1.0
+  executors:
+    android-executor:
+      docker:
+        - image: circleci/android:api-28-alpha
+      working_directory: ~/android
+      environment:
+        JVM_OPTS: -Xmx3200m
+        CIRCLE_JDK_VERSION: oraclejdk8
+  jobs:
+    test-android:
+      executor: android-executor
+      steps:
+        - checkout
+        - revenuecat/prepare-android
+        - run:
+            name: Run Tests
+            command: ./gradlew lint test
+        - android/save-build-cache
+        - store_artifacts:
+            path: build/reports
+        - store_test_results:
+            path: build/test-results
+  workflows:
+    version: 2
+    android:
+      jobs:
+        - test-android
