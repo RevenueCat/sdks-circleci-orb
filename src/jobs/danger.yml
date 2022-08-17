@@ -1,5 +1,5 @@
 description: >
-  Runs Danger check
+  Runs Danger checks
 docker:
   - image: cimg/ruby:3.1.2
 shell: /bin/bash --login -o pipefail
