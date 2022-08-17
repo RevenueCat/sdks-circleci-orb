@@ -6,6 +6,6 @@ shell: /bin/bash --login -o pipefail
 steps:
   - checkout
   - install-rubydocker-dependencies
-  - run: 
+  - run:
       name: Run Danger
       command: bundle exec danger --verbose
