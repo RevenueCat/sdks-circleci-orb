@@ -16,7 +16,7 @@ jobs:
     steps:
       - checkout
       # Run your orb's commands to validate them.
-      - <orb-name>/greet
+      - <orb-name>/danger
 workflows:
   test-deploy:
     jobs:
@@ -32,7 +32,7 @@ workflows:
           requires:
             - orb-tools/pack
             - command-tests
-          context: <publishing-context>
+          context: orb-publishing
           filters:
             branches:
               ignore: /.*/
