@@ -1,0 +1,11 @@
+description: >
+  Runs Danger checks
+docker:
+  - image: cimg/ruby:3.1.2
+shell: /bin/bash --login -o pipefail
+steps:
+  - checkout
+  - install-rubydocker-dependencies
+  - run:
+      name: Run Danger
+      command: bundle exec danger --verbose
