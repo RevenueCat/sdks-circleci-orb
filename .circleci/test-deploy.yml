@@ -1,0 +1,27 @@
+version: 2.1
+orbs:
+  <orb-name>: revenuecat/sdks-common-config@dev:<<pipeline.git.revision>>
+  orb-tools: circleci/orb-tools@11.1
+
+filters: &filters
+  tags:
+    only: /.*/
+
+jobs:
+workflows:
+  test-deploy:
+    jobs:
+      - orb-tools/pack:
+          filters: *filters
+      - orb-tools/publish:
+          orb-name: revenuecat/sdks-common-config
+          vcs-type: << pipeline.project.type >>
+          pub-type: production
+          requires:
+            - orb-tools/pack
+          context: orb-publishing
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v[0-9]+\.[0-9]+\.[0-9]+$/
