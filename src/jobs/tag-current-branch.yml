@@ -1,0 +1,13 @@
+description: >
+  Tags current branch
+docker:
+  - image: cimg/ruby:3.1.2
+shell: /bin/bash --login -o pipefail
+steps:
+  - checkout
+  - setup-git-credentials
+  - trust-github-key
+  - revenuecat/install-rubydocker-dependencies
+  - run: 
+      name: Tag branch
+      command: bundle exec fastlane tag_current_branch
