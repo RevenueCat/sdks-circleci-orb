@@ -6,7 +6,6 @@ parameters:
     default: ""
   cache-version:
     type: string
-    default: v1
 steps:
   - restore_cache:
       keys:

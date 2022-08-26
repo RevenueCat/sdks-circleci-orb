@@ -3,7 +3,6 @@ description: >
 parameters:
   cache-version:
     type: string
-    default: v1
 steps:
   - install-gem-dependencies:
       cache-version: <<parameters.cache-version>>
