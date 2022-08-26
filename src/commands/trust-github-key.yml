@@ -1,0 +1,6 @@
+description: >
+  Trusts GitHub ssh key
+steps:
+  - run:
+      name: Trust GitHub key
+      command: <<include(scripts/trust-github-key.sh)>>
