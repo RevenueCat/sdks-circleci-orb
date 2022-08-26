@@ -5,7 +5,7 @@ docker:
 shell: /bin/bash --login -o pipefail
 steps:
   - checkout
-  - install-rubydocker-dependencies
+  - install-gem-unix-dependencies
   - run:
       name: Run Danger
       command: bundle exec danger --verbose
