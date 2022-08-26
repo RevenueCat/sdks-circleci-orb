@@ -1,7 +1,6 @@
 description: >
   Restores, installs and caches Gems
 parameters:
-  parameters:
   cache-prefix:
     type: string
     default: ""
