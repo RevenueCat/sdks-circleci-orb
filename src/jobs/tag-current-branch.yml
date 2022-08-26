@@ -7,7 +7,8 @@ steps:
   - checkout
   - setup-git-credentials
   - trust-github-key
-  - install-rubydocker-dependencies
+  - install-gem-unix-dependencies:
+      cache-version: v1
   - run:
       name: Tag branch
       command: bundle exec fastlane tag_current_branch

@@ -1,0 +1,9 @@
+description: >
+  Restores, installs Gems and caches them in Unix machines
+parameters:
+  cache-version:
+    type: string
+steps:
+  - install-gem-dependencies:
+      cache-version: <<parameters.cache-version>>
+      cache-prefix: unix
