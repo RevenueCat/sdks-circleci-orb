@@ -14,7 +14,10 @@ steps:
         - <<parameters.cache-version>>-<<parameters.cache-prefix>>-gem-cache-{{ checksum "Gemfile.lock" }}
   - run:
       name: Bundle install
-      command: bundle install --clean --path vendor/bundle
+      command: |
+        bundle config set --local clean 'true'
+        bundle config set --local path 'vendor/bundle'
+        bundle install
   - save_cache:
       key: <<parameters.cache-version>>-<<parameters.cache-prefix>>-gem-cache-{{ checksum "Gemfile.lock" }}
       paths:
