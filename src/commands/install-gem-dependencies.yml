@@ -1,0 +1,21 @@
+description: >
+  Restores, installs and caches Gems
+parameters:
+  parameters:
+  cache-prefix:
+    type: string
+    default: ""
+  cache-version:
+    type: string
+    default: v1
+steps:
+  - restore_cache:
+      keys:
+        - <<parameters.cache-version>>-<<parameters.cache-prefix>>-gem-cache-{{ checksum "Gemfile.lock" }}
+  - run:
+      name: Bundle install
+      command: bundle install --clean --path vendor/bundle
+  - save_cache:
+      key: <<parameters.cache-version>>-<<parameters.cache-prefix>>-gem-cache-{{ checksum "Gemfile.lock" }}
+      paths:
+        - vendor/bundle
