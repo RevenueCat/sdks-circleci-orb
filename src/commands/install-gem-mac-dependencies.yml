@@ -3,11 +3,11 @@ description: >
 parameters:
   cache-version:
     type: string
-  directory:
+  working_directory:
     type: string
     default: .
 steps:
   - install-gem-dependencies:
       cache-version: <<parameters.cache-version>>
       cache-prefix: mac
-      directory: <<parameters.directory>>
+      working_directory: <<parameters.working_directory>>

@@ -6,18 +6,18 @@ parameters:
     default: ""
   cache-version:
     type: string
-  directory:
+  working_directory:
     type: string
     default: .
 steps:
   - restore_cache:
       keys:
-        - <<parameters.cache-version>>-<<parameters.cache-prefix>>-gem-cache-{{ checksum "<< parameters.directory >>/Gemfile.lock" }}
+        - <<parameters.cache-version>>-<<parameters.cache-prefix>>-gem-cache-{{ checksum "<< parameters.working_directory >>/Gemfile.lock" }}
   - run:
       name: Bundle install
-      working_directory: << parameters.directory >>
+      working_directory: << parameters.working_directory >>
       command: <<include(scripts/bundle-install.sh)>>
   - save_cache:
-      key: <<parameters.cache-version>>-<<parameters.cache-prefix>>-gem-cache-{{ checksum "<< parameters.directory >>/Gemfile.lock" }}
+      key: <<parameters.cache-version>>-<<parameters.cache-prefix>>-gem-cache-{{ checksum "<< parameters.working_directory >>/Gemfile.lock" }}
       paths:
         - vendor/bundle
