@@ -3,7 +3,11 @@ description: >
 parameters:
   cache-version:
     type: string
+  working_directory:
+    type: string
+    default: .
 steps:
   - install-gem-dependencies:
       cache-version: <<parameters.cache-version>>
       cache-prefix: unix
+      working_directory: <<parameters.working_directory>>
