@@ -9,4 +9,4 @@ steps:
   - save_cache:
       paths:
         - ~/.gradle
-      key: <<parameters.cache-prefix>>-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}-{{ checksum "build.gradle" }}-{{ checksum "gradle-checksums.txt" }}-{{ checksum "date.txt" }}
+      key: <<parameters.cache-prefix>>-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}-{{ checksum "gradle/libs.versions.toml" }}-{{ checksum "gradle-checksums.txt" }}-{{ checksum "date.txt" }}
