@@ -4,7 +4,7 @@ parameters:
     type: string
     default: v1
 steps:
-  - run: 
+  - run:
       name: Assert GIT_LFS_SKIP_SMUDGE is set to 1
       command: |
         if [ "$GIT_LFS_SKIP_SMUDGE" != "1" ]; then
