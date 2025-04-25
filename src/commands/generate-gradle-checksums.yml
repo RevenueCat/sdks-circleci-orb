@@ -1,7 +1,0 @@
-# extracted from https://github.com/wordpress-mobile/circleci-orbs/
-description: >
-  Generate Gradle checksums
-steps:
-  - run:
-      name: Generate Gradle checksums
-      command: <<include(scripts/compute-gradle-checksums.sh)>>

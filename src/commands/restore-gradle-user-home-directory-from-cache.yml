@@ -1,0 +1,10 @@
+description: >
+  Restore the cache of ~/.gradle based on the local build files.
+parameters:
+  cache-prefix:
+    type: string
+    default: v1
+steps:
+  - android/restore-gradle-cache:
+      cache-prefix: <<parameters.cache-prefix>>
+      find-args: . -name "*.gradle.kts" -o -name "*.gradle" -o -name "*.versions.toml" -o -name "gradle-wrapper.properties"
