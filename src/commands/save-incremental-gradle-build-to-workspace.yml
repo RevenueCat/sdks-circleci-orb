@@ -1,0 +1,14 @@
+description: >
+  Saves incremental Gradle build to workspace
+steps:
+  - persist_to_workspace:
+      name: Save incremental Gradle build to workspace
+      root: ./
+      paths: 
+        - .gradle
+        # This doesn't support directory glob patterns (**), unfortunately.
+        - build
+        - ./*/build
+        - ./*/*/build
+        - ./*/*/*/build
+        - ./*/*/*/*/build
