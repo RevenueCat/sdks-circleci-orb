@@ -1,0 +1,10 @@
+description: >
+  Caches the contents of ~/.gradle based on the local build files.
+parameters:
+  cache_prefix:
+    default: v1
+    description: Used to form part of the cache key
+    type: string
+steps:
+  - android/save_gradle_cache:
+      cache_prefix: <<parameters.cache_prefix>>

@@ -1,0 +1,6 @@
+description: >
+  Attaches workspace at working directory
+steps:
+  - attach_workspace:
+      name: Attach workspace at working directory
+      at: ./

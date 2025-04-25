@@ -1,0 +1,15 @@
+description: >
+  Saves the Kotlin/Native compiler to the cache
+parameters:
+  kotlin-version:
+    type: string
+steps:
+  - run:
+      name: Get the Kotlin version
+      command: echo <<parameters.kotlin-version>> > ~/.kotlin_version
+  # We cannot use the Kotlin version in the cache key directly, so we use the checksum of a file
+  # containing it instead.
+  - save_cache:
+      name: Saving Kotlin/Native compiler to cache
+      paths: [~/.konan]
+      key: konan-{{ arch }}-{{ checksum "~/.kotlin_version" }}
