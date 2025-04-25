@@ -17,11 +17,13 @@ usage:
       executor: android-executor
       steps:
         - checkout
-        - revenuecat/prepare-android
+        - revenuecat/restore-gradle-user-home-directory-from-cache
+        - revenuecat/attach-workspace-at-working-directory
         - run:
             name: Run Tests
             command: ./gradlew lint test
-        - android/save-build-cache
+        - revenuecat/save-gradle-user-home-directory-to-cache
+        - revenuecat/save-incremental-gradle-build-to-workspace
         - store_artifacts:
             path: build/reports
         - store_test_results:
