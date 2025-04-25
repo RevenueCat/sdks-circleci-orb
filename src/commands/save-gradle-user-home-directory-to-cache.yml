@@ -6,5 +6,5 @@ parameters:
     description: Used to form part of the cache key
     type: string
 steps:
-  - android/save-gradle-cache:
+  - android/save_gradle_cache:
       cache-prefix: <<parameters.cache-prefix>>

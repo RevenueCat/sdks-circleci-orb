@@ -5,6 +5,6 @@ parameters:
     type: string
     default: v1
 steps:
-  - android/restore-gradle-cache:
+  - android/restore_gradle_cache:
       cache-prefix: <<parameters.cache-prefix>>
       find-args: . -name "*.gradle.kts" -o -name "*.gradle" -o -name "*.versions.toml" -o -name "gradle-wrapper.properties"
