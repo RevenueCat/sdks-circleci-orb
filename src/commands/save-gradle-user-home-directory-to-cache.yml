@@ -1,7 +1,7 @@
 description: >
   Caches the contents of ~/.gradle based on the local build files.
 parameters:
-  cache_prefix:
+  cache-prefix:
     default: v1
     description: Used to form part of the cache key
     type: string
