@@ -14,5 +14,9 @@ parameters:
     description: Git host
 steps:
   - run:
+      environment:
+        PARAMETERS_REPOSITORY: << parameters.repository >>
+        PARAMETERS_OWNER: << parameters.owner >>
+        PARAMETERS_HOST: << parameters.host >>
       name: Assert cloning << parameters.repository >> fails
       command: <<include(scripts/assert-git-clone-fails.sh)>>
