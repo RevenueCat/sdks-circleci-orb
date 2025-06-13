@@ -5,4 +5,4 @@ steps:
       name: Remove all SSH keys
       command: |
         rm -rf ~/.ssh/*
-        ssh-add -D 
+        ssh-add -D

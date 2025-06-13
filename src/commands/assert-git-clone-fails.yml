@@ -15,4 +15,4 @@ parameters:
 steps:
   - run:
       name: Assert cloning << parameters.repository >> fails
-      command: git clone git@<< parameters.host >>:<< parameters.owner >>/<< parameters.repository >>.git && exit 1 || true 
+      command: git clone git@<< parameters.host >>:<< parameters.owner >>/<< parameters.repository >>.git && exit 1 || true

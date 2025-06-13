@@ -18,4 +18,4 @@ steps:
       name: Restore GIT_SSH_COMMAND
       command: |
         export GIT_SSH_COMMAND="$GIT_SSH_COMMAND_BACKUP"
-        unset GIT_SSH_COMMAND_BACKUP 
+        unset GIT_SSH_COMMAND_BACKUP

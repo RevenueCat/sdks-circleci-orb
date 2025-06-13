@@ -25,4 +25,4 @@ steps:
         done
         if [ "$key_found" = false ]; then
             echo "Error: SSH key with fingerprint << parameters.fingerprint >> not found"
-            exit 1 
+            exit 1
