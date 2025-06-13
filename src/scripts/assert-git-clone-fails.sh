@@ -2,4 +2,6 @@
 
 set -euo pipefail
 
-git clone "git@<< parameters.host >>:<< parameters.owner >>/<< parameters.repository >>.git" && exit 1 || true
+if git clone "git@<< parameters.host >>:<< parameters.owner >>/<< parameters.repository >>.git"; then
+    exit 1
+fi
