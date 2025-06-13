@@ -1,0 +1,8 @@
+description: >
+  Remove all SSH keys from the system
+steps:
+  - run:
+      name: Remove all SSH keys
+      command: |
+        rm -rf ~/.ssh/*
+        ssh-add -D 

@@ -1,0 +1,28 @@
+description: >
+  Set SSH key for Git operations. This key will be used until set-ssh-key-for-git is called again.
+parameters:
+  fingerprint:
+    type: string
+    description: SHA256 fingerprint of the SSH key to be used
+steps:
+  - add_ssh_keys:
+      fingerprints:
+        - "<< parameters.fingerprint >>"
+  - run:
+      name: Set SSH Key
+      command: |
+        key_found=false
+        for key in ~/.ssh/*; do
+            if [ -f "$key" ]; then
+                sha256=$(ssh-keygen -lf "$key" -E sha256 | awk '{print $2}')
+                if [ "$sha256" = "<< parameters.fingerprint >>" ]; then
+                    echo "export GIT_SSH_COMMAND=\"ssh -i $key\"" >> $BASH_ENV
+                    source $BASH_ENV
+                    key_found=true
+                    break
+                fi
+            fi
+        done
+        if [ "$key_found" = false ]; then
+            echo "Error: SSH key with fingerprint << parameters.fingerprint >> not found"
+            exit 1 
