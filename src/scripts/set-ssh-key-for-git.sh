@@ -5,11 +5,12 @@ set -euo pipefail
 key_found=false
 for key in ~/.ssh/*; do
     if [ -f "$key" ]; then
-        sha256=$(ssh-keygen -lf "$key" -E sha256 | awk '{print $2}')
-        if [ "$sha256" = "<< parameters.fingerprint >>" ]; then
-            echo "export GIT_SSH_COMMAND=\"ssh -i $key\"" >> "$BASH_ENV"
-            key_found=true
-            break
+        if sha256=$(ssh-keygen -lf "$key" -E sha256 2>/dev/null | awk '{print $2}' 2>/dev/null); then
+            if [ "$sha256" = "<< parameters.fingerprint >>" ]; then
+                echo "export GIT_SSH_COMMAND=\"ssh -i $key\"" >> "$BASH_ENV"
+                key_found=true
+                break
+            fi
         fi
     fi
 done
