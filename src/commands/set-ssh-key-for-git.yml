@@ -9,5 +9,10 @@ steps:
       fingerprints:
         - "<< parameters.fingerprint >>"
   - run:
-      name: Set SSH key used by Git operations
+      name: Export parameters
+      command: |
+        echo "export PARAMETERS_FINGERPRINT='<< parameters.fingerprint >>'" >> "$BASH_ENV"
+        source "$BASH_ENV"
+  - run:
+      name: Set SSH key used for Git operations
       command: <<include(scripts/set-ssh-key-for-git.sh)>>
