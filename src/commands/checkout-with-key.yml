@@ -13,9 +13,7 @@ steps:
       fingerprint: "<< parameters.fingerprint >>"
   - run:
       name: Clone repository and checkout the correct commit
-      command: cd ~/ && git clone "$CIRCLE_REPOSITORY_URL" && cd "$CIRCLE_PROJECT_REPONAME" && git checkout "$CIRCLE_SHA1"
+      command: <<include(scripts/git-clone-and-checkout.sh)>>
   - run:
       name: Restore GIT_SSH_COMMAND
-      command: |
-        export GIT_SSH_COMMAND="$GIT_SSH_COMMAND_BACKUP"
-        unset GIT_SSH_COMMAND_BACKUP
+      command: export GIT_SSH_COMMAND="$GIT_SSH_COMMAND_BACKUP"
