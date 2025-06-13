@@ -1,0 +1,15 @@
+description: >
+  Set SSH key for Git operations. This key will be used until set-ssh-key-for-git is called again.
+parameters:
+  fingerprint:
+    type: string
+    description: SHA256 fingerprint of the SSH key to be used
+steps:
+  - add_ssh_keys:
+      fingerprints:
+        - "<< parameters.fingerprint >>"
+  - run:
+      environment:
+        PARAMETERS_FINGERPRINT: << parameters.fingerprint >>
+      name: Set SSH key used for Git operations
+      command: <<include(scripts/set-ssh-key-for-git.sh)>>
