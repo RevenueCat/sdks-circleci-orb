@@ -1,0 +1,19 @@
+description: >
+  Checkout repository using a specific SSH key
+parameters:
+  fingerprint:
+    type: string
+    description: SHA256 fingerprint of the SSH key to be used for the checkout
+steps:
+  - trust-github-key
+  - run:
+      name: Remember current GIT_SSH_COMMAND
+      command: export GIT_SSH_COMMAND_BACKUP="$GIT_SSH_COMMAND"
+  - set-ssh-key-for-git:
+      fingerprint: "<< parameters.fingerprint >>"
+  - run:
+      name: Clone repository and checkout the correct commit
+      command: <<include(scripts/git-clone-and-checkout.sh)>>
+  - run:
+      name: Restore GIT_SSH_COMMAND
+      command: export GIT_SSH_COMMAND="$GIT_SSH_COMMAND_BACKUP"
