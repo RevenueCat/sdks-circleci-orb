@@ -1,0 +1,21 @@
+description: >
+  Installs mise tool version manager
+parameters:
+  version:
+    type: string
+    default: "latest"
+    description: "Version of mise to install"
+steps:
+  - run:
+      name: Install mise
+      command: |
+        if command -v mise &> /dev/null; then
+          echo "mise is already installed"
+          mise --version
+        else
+          echo "Installing mise..."
+          curl https://mise.jdx.dev/install.sh | sh
+          echo 'export PATH="$HOME/.local/bin:$PATH"' >> $BASH_ENV
+          source $BASH_ENV
+          mise --version
+        fi
