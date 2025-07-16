@@ -12,32 +12,7 @@ parameters:
 steps:
   - run:
       name: Install Tuist via mise
-      command: |
-        # Ensure mise is available
-        if ! command -v mise &> /dev/null; then
-          echo "mise is not installed. Please run the install-mise command first."
-          exit 1
-        fi
-        
-        # Install Tuist
-        if [ "<< parameters.version >>" = "latest" ]; then
-          echo "Installing Tuist using mise..."
-          mise install tuist
-        else
-          echo "Installing Tuist version << parameters.version >> using mise..."
-          mise install tuist@<< parameters.version >>
-        fi
-        
-        # Set the version to use
-        if [ "<< parameters.version >>" != "latest" ]; then
-          if [ "<< parameters.global >>" = "true" ]; then
-            echo "Setting Tuist << parameters.version >> as global default..."
-            mise use -g tuist@<< parameters.version >>
-          else
-            echo "Setting Tuist << parameters.version >> for current directory..."
-            mise use tuist@<< parameters.version >>
-          fi
-        fi
-        
-        # Verify installation
-        tuist --version
+      environment:
+        PARAMETERS_VERSION: << parameters.version >>
+        PARAMETERS_GLOBAL: << parameters.global >>
+      command: <<include(scripts/install-tuist.sh)>>
