@@ -36,11 +36,20 @@ else
   fi
 fi
 
+# Activate mise environment to make tuist available
+eval "$(mise activate bash)"
+
+# Also add mise shims to PATH as a fallback
+export PATH="$HOME/.local/share/mise/shims:$PATH"
+
 # Verify installation
 if command -v tuist &> /dev/null; then
   echo "Tuist installed successfully"
   tuist --version
 else
   echo "Error: Tuist installation failed"
+  echo "Available tools in mise:"
+  mise list
+  echo "PATH: $PATH"
   exit 1
 fi 
