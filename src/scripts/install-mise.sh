@@ -13,7 +13,7 @@ if command -v mise &> /dev/null; then
   echo "eval \"\$(mise activate bash)\"" >> "$BASH_ENV"
 else
   echo "Installing mise..."
-  curl -fsSL https://mise.jdx.dev/install.sh | bash
+  curl -fsSL https://mise.run | sh
   
   # Add mise to PATH for current session and future sessions
   export PATH="$HOME/.local/bin:$PATH"
