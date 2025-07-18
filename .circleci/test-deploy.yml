@@ -16,7 +16,7 @@ jobs:
       - run:
           name: Create .mise.toml for testing
           command: |
-            cat > .mise.toml << 'EOF'
+            cat > .mise.toml \<< 'EOF'
             [tools]
             tuist = "4.48.2"
             
