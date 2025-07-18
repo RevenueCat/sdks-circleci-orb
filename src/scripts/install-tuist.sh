@@ -2,52 +2,39 @@
 
 set -euo pipefail
 
-# Ensure mise is available
+# Install mise if not available
 if ! command -v mise &> /dev/null; then
-  echo "Error: mise is not available. Please install mise first."
-  exit 1
-fi
-
-echo "Installing Tuist using mise..."
-
-# Ensure mise environment is activated
-eval "$(mise activate bash)"
-
-# Install Tuist using mise
-if [ "$PARAMETERS_VERSION" = "latest" ]; then
-  echo "Installing latest Tuist using mise..."
-  mise install tuist@latest
-else
-  echo "Installing Tuist version $PARAMETERS_VERSION using mise..."
-  mise install "tuist@$PARAMETERS_VERSION"
-fi
-
-# Set the version to use
-if [ "$PARAMETERS_GLOBAL" = "true" ]; then
-  if [ "$PARAMETERS_VERSION" = "latest" ]; then
-    echo "Setting latest Tuist as global default..."
-    mise use -g tuist@latest
+  echo "Installing mise..."
+  curl -fsSL https://mise.run | sh
+  
+  # Add mise to PATH for current session and future sessions
+  export PATH="$HOME/.local/bin:$PATH"
+  echo "export PATH=\"\$HOME/.local/bin:\$PATH\"" >> "$BASH_ENV"
+  
+  # Verify mise installation
+  if command -v mise &> /dev/null; then
+    echo "mise installed successfully"
+    mise --version
   else
-    echo "Setting Tuist $PARAMETERS_VERSION as global default..."
-    mise use -g "tuist@$PARAMETERS_VERSION"
+    echo "Error: mise installation failed"
+    exit 1
   fi
 else
-  if [ "$PARAMETERS_VERSION" = "latest" ]; then
-    echo "Setting latest Tuist for current directory..."
-    mise use tuist@latest
-  else
-    echo "Setting Tuist $PARAMETERS_VERSION for current directory..."
-    mise use "tuist@$PARAMETERS_VERSION"
-  fi
+  echo "mise is already installed"
+  mise --version
 fi
 
-# Activate mise environment and update PATH
+# Setup mise environment once
 eval "$(mise activate bash)"
 export PATH="$HOME/.local/share/mise/shims:$PATH"
 
-# Ensure PATH persists for subsequent steps
+# Ensure PATH and mise activation persist for subsequent steps
 echo "export PATH=\"\$HOME/.local/share/mise/shims:\$PATH\"" >> "$BASH_ENV"
 echo "eval \"\$(mise activate bash)\"" >> "$BASH_ENV"
+
+# Install Tuist using mise
+echo "Installing Tuist using mise..."
+mise install tuist
 
 # Verify installation
 if command -v tuist &> /dev/null; then

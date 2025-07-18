@@ -1,18 +1,6 @@
 description: >
-  Installs Tuist using mise tool version manager
-parameters:
-  version:
-    type: string
-    default: "latest"
-    description: "Version of Tuist to install"
-  global:
-    type: boolean
-    default: false
-    description: "Set as global default version"
+  Installs mise tool version manager and Tuist (reads from .mise.toml)
 steps:
   - run:
-      name: Install Tuist via mise
-      environment:
-        PARAMETERS_VERSION: << parameters.version >>
-        PARAMETERS_GLOBAL: << parameters.global >>
+      name: Install mise and Tuist
       command: <<include(scripts/install-tuist.sh)>>

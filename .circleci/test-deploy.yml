@@ -8,58 +8,39 @@ filters: &filters
     only: /.*/
 
 jobs:
-  test-install-mise:
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - checkout
-      - <orb-name>/install-mise
-      - run:
-          name: Verify mise installation
-          command: |
-            mise --version
-            which mise
-
   test-install-tuist:
     docker:
       - image: cimg/base:stable
     steps:
       - checkout
-      - <orb-name>/install-mise
+      - run:
+          name: Create .mise.toml for testing
+          command: |
+            cat > .mise.toml << 'EOF'
+            [tools]
+            tuist = "4.48.2"
+            
+            [hooks]
+            postinstall = "mise run install"
+            EOF
       - <orb-name>/install-tuist
+      - run:
+          name: Verify mise installation
+          command: |
+            mise --version
+            which mise
       - run:
           name: Verify tuist installation
           command: |
             tuist --version
             which tuist
 
-  test-install-tuist-specific-version:
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - checkout
-      - <orb-name>/install-mise
-      - <orb-name>/install-tuist:
-          version: "4.0.0"
-      - run:
-          name: Verify specific tuist version
-          command: |
-            tuist --version | grep "4.0.0"
-
 workflows:
   test-deploy:
     jobs:
       - orb-tools/pack:
           filters: *filters
-      - test-install-mise:
-          requires:
-            - orb-tools/pack
-          filters: *filters
       - test-install-tuist:
-          requires:
-            - orb-tools/pack
-          filters: *filters
-      - test-install-tuist-specific-version:
           requires:
             - orb-tools/pack
           filters: *filters
@@ -69,9 +50,7 @@ workflows:
           pub-type: production
           requires:
             - orb-tools/pack
-            - test-install-mise
             - test-install-tuist
-            - test-install-tuist-specific-version
           context: orb-publishing
           filters:
             branches:
