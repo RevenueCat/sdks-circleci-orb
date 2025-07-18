@@ -13,27 +13,13 @@ jobs:
       - image: cimg/base:stable
     steps:
       - checkout
-      - run:
-          name: Create .mise.toml for testing
-          command: |
-            cat > .mise.toml \<< 'EOF'
-            [tools]
-            tuist = "4.48.2"
-            
-            [hooks]
-            postinstall = "mise run install"
-            EOF
       - <orb-name>/install-tuist
-      - run:
-          name: Verify mise installation
-          command: |
-            mise --version
-            which mise
       - run:
           name: Verify tuist installation
           command: |
-            tuist --version
-            which tuist
+            eval "$(mise activate bash --shims)"
+            mise install
+            tuist version
 
 workflows:
   test-deploy:
