@@ -9,16 +9,18 @@ filters: &filters
 
 jobs:
   test-install-tuist:
-    docker:
-      - image: cimg/base:stable
+    macos:
+      xcode: 15.0
+    resource_class: m2pro.medium
     steps:
       - checkout
       - <orb-name>/install-tuist
       - run:
           name: Verify tuist installation
           command: |
+            export PATH="$HOME/.local/bin:$PATH"
+            export PATH="$HOME/.local/share/mise/shims:$PATH"
             eval "$(mise activate bash --shims)"
-            mise install
             tuist version
 
 workflows:
