@@ -18,9 +18,7 @@ jobs:
       - run:
           name: Verify tuist installation
           command: |
-            export PATH="$HOME/.local/bin:$PATH"
             export PATH="$HOME/.local/share/mise/shims:$PATH"
-            eval "$(mise activate bash --shims)"
             tuist version
 
 workflows:
