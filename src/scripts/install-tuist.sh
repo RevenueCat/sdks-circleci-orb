@@ -15,7 +15,7 @@ eval "$(mise activate bash)"
 export PATH="$HOME/.local/share/mise/shims:$PATH"
 
 # Optional: Ensure tuist plugin is installed
-mise plugins install tuist || true
+mise plugins install tuist
 
 # Write mise.toml with compatible Tuist version
 # Using 4.40.0 as it's compatible with older macOS versions (pre-macOS 14.0)
