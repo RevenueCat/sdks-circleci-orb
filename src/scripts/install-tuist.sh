@@ -17,10 +17,11 @@ export PATH="$HOME/.local/share/mise/shims:$PATH"
 # Optional: Ensure tuist plugin is installed
 mise plugins install tuist
 
-# Write mise.toml with compatible Tuist version
-# Using 4.40.0 as it's compatible with older macOS versions (pre-macOS 14.0)
-echo "[tools]" > mise.toml
-echo "tuist = \"4.40.0\"" >> mise.toml
+# Check if mise.toml exists
+if [ ! -f "mise.toml" ]; then
+    echo "❌ mise.toml not found. Please create a mise.toml file with tuist version specified."
+    exit 1
+fi
 
 # Install tools
 mise install
