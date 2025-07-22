@@ -8,10 +8,27 @@ filters: &filters
     only: /.*/
 
 jobs:
+  test-install-tuist:
+    macos:
+      xcode: 16.4.0
+    resource_class: m4pro.medium
+    steps:
+      - checkout
+      - <orb-name>/install-tuist
+      - run:
+          name: Verify tuist installation
+          command: |
+            export PATH="$HOME/.local/share/mise/shims:$PATH"
+            tuist version
+
 workflows:
   test-deploy:
     jobs:
       - orb-tools/pack:
+          filters: *filters
+      - test-install-tuist:
+          requires:
+            - orb-tools/pack
           filters: *filters
       - orb-tools/publish:
           orb-name: revenuecat/sdks-common-config
@@ -19,6 +36,7 @@ workflows:
           pub-type: production
           requires:
             - orb-tools/pack
+            - test-install-tuist
           context: orb-publishing
           filters:
             branches:
