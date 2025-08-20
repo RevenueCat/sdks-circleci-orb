@@ -21,12 +21,30 @@ jobs:
             export PATH="$HOME/.local/share/mise/shims:$PATH"
             tuist version
 
+  test-install-public-api-diff:
+    macos:
+      xcode: 16.4.0
+    resource_class: m4pro.medium
+    steps:
+      - checkout
+      - <orb-name>/install-public-api-diff:
+          version: "0.10.1"
+      - run:
+          name: Verify public-api-diff installation
+          command: |
+            export PATH="$PATH:~/bin"
+            public-api-diff --help
+
 workflows:
   test-deploy:
     jobs:
       - orb-tools/pack:
           filters: *filters
       - test-install-tuist:
+          requires:
+            - orb-tools/pack
+          filters: *filters
+      - test-install-public-api-diff:
           requires:
             - orb-tools/pack
           filters: *filters
@@ -37,6 +55,7 @@ workflows:
           requires:
             - orb-tools/pack
             - test-install-tuist
+            - test-install-public-api-diff
           context: orb-publishing
           filters:
             branches:

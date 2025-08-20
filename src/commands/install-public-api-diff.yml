@@ -1,0 +1,13 @@
+description: >
+  Installs public-api-diff tool for Swift interface comparison
+parameters:
+  version:
+    type: string
+    default: "0.10.1"
+    description: Version of public-api-diff to install
+steps:
+  - run:
+      name: Install public-api-diff
+      command: <<include(scripts/install-public-api-diff.sh)>>
+      environment:
+        PUBLIC_API_DIFF_VERSION: << parameters.version >>
