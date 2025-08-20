@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "Installing public-api-diff..."
+# Get version from environment variable, default to 0.10.1 if not set
+VERSION=${PUBLIC_API_DIFF_VERSION:-0.10.1}
+
+echo "Installing public-api-diff version $VERSION..."
 
 # Create tools directory
 mkdir -p ~/tools
@@ -11,6 +14,9 @@ git clone https://github.com/Adyen/adyen-swift-public-api-diff.git ~/tools/adyen
 
 # Navigate to the cloned directory
 cd ~/tools/adyen-swift-public-api-diff
+
+# Checkout the specific version tag
+git checkout "$VERSION"
 
 # Build the tool
 swift build -c release

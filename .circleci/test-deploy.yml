@@ -27,7 +27,8 @@ jobs:
     resource_class: m4pro.medium
     steps:
       - checkout
-      - <orb-name>/install-public-api-diff
+      - <orb-name>/install-public-api-diff:
+          version: "0.10.1"
       - run:
           name: Verify public-api-diff installation
           command: |
