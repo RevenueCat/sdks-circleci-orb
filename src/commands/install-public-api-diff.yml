@@ -1,0 +1,6 @@
+description: >
+  Installs public-api-diff tool for Swift interface comparison
+steps:
+  - run:
+      name: Install public-api-diff
+      command: <<include(scripts/install-public-api-diff.sh)>>
