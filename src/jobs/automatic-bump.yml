@@ -1,7 +1,12 @@
 description: >
   Runs automatic bump
+parameters:
+  ruby_version:
+    type: string
+    default: "3.1.2"
+    description: "Ruby version to use for the Docker image"
 docker:
-  - image: cimg/ruby:3.1.2
+  - image: cimg/ruby:<< parameters.ruby_version >>
 shell: /bin/bash --login -o pipefail
 steps:
   - checkout
