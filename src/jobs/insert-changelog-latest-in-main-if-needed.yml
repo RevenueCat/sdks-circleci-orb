@@ -1,0 +1,26 @@
+description: >
+  If the release corresponds to a previous version, creates a PR to insert the release changelog into main's CHANGELOG.md.
+  Requires the fastlane lane `insert_changelog_latest_in_main_if_needed` to be defined in the Fastfile of the repository
+parameters:
+  ruby_version:
+    type: string
+    default: "3.2.0"
+    description: "Ruby version to use for the Docker image"
+  cache-version:
+    type: string
+  working_directory:
+    type: string
+    default: .
+docker:
+  - image: cimg/ruby:<< parameters.ruby_version >>
+shell: /bin/bash --login -o pipefail
+steps:
+  - checkout
+  - install-gem-mac-dependencies:
+      cache-version: <<parameters.cache-version>>
+      working_directory: <<parameters.working_directory>>
+  - trust-github-key
+  - setup-git-credentials
+  - run:
+      name: Insert changelog latest in main if needed
+      command: bundle exec fastlane insert_changelog_latest_in_main_if_needed
