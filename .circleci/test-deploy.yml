@@ -35,22 +35,10 @@ jobs:
             export PATH="$PATH:~/bin"
             public-api-diff --help
 
-  test-install-maestro-macos:
+  test-install-maestro:
     macos:
       xcode: 16.4.0
     resource_class: m4pro.medium
-    steps:
-      - checkout
-      - <orb-name>/install-maestro
-      - run:
-          name: Verify Maestro installation
-          command: |
-            maestro --version
-
-  test-install-maestro-unix:
-    docker:
-      - image: cimg/base:stable
-    resource_class: small
     steps:
       - checkout
       - <orb-name>/install-maestro
@@ -68,11 +56,7 @@ workflows:
           requires:
             - orb-tools/pack
           filters: *filters
-      - test-install-maestro-macos:
-          requires:
-            - orb-tools/pack
-          filters: *filters
-      - test-install-maestro-unix:
+      - test-install-maestro:
           requires:
             - orb-tools/pack
           filters: *filters
@@ -88,8 +72,7 @@ workflows:
             - orb-tools/pack
             - test-install-tuist
             - test-install-public-api-diff
-            - test-install-maestro-macos
-            - test-install-maestro-unix
+            - test-install-maestro
           context: orb-publishing
           filters:
             branches:
