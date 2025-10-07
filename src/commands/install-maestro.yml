@@ -3,7 +3,4 @@ description: >
 steps:
   - run:
       name: Install Maestro
-      command: |
-        curl -Ls "https://get.maestro.mobile.dev" | bash
-        echo 'export PATH="$HOME/.maestro/bin:$PATH"' >> $BASH_ENV
-        source $BASH_ENV
+      command: <<include(scripts/install-maestro.sh)>>
