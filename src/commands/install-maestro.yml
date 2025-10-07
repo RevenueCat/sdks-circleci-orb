@@ -1,0 +1,6 @@
+description: >
+  Installs Maestro tool for running UI tests
+steps:
+  - run:
+      name: Install Maestro
+      command: <<include(scripts/install-maestro.sh)>>
