@@ -1,0 +1,7 @@
+description: >
+  Installs mise tool version manager and SwiftLint (reads from .mise.toml)
+steps:
+  - run:
+      name: Install mise and SwiftLint
+      command: <<include(scripts/install-swiftlint.sh)>>
+
