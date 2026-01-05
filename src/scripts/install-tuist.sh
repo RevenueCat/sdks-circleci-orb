@@ -1,12 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Install mise
-echo "Installing mise..."
-curl https://mise.run | sh
-
 # Add mise to PATH
 export PATH="$HOME/.local/bin:$PATH"
+
+# Install mise if not already installed
+if command -v mise &> /dev/null; then
+    echo "mise is already installed, skipping installation..."
+else
+    echo "Installing mise..."
+    curl https://mise.run | sh
+fi
 
 # Activate mise (includes env, shims, etc.)
 eval "$(mise activate bash)"
