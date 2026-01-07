@@ -1,0 +1,7 @@
+description: >
+  Installs mise tool version manager and xcbeautify (reads from .mise.toml)
+steps:
+  - run:
+      name: Install mise and xcbeautify
+      command: <<include(scripts/install-xcbeautify.sh)>>
+
