@@ -60,6 +60,19 @@ jobs:
             export PATH="$HOME/.local/share/mise/shims:$PATH"
             swiftlint version
 
+  test-install-xcodes:
+    macos:
+      xcode: 16.4.0
+    resource_class: m4pro.medium
+    steps:
+      - checkout
+      - <orb-name>/install-xcodes
+      - run:
+          name: Verify xcodes installation
+          command: |
+            export PATH="$HOME/.local/share/mise/shims:$PATH"
+            xcodes version
+
 workflows:
   test-deploy:
     jobs:
@@ -81,6 +94,10 @@ workflows:
           requires:
             - orb-tools/pack
           filters: *filters
+      - test-install-xcodes:
+          requires:
+            - orb-tools/pack
+          filters: *filters
       - orb-tools/publish:
           orb-name: revenuecat/sdks-common-config
           vcs-type: << pipeline.project.type >>
@@ -91,6 +108,7 @@ workflows:
             - test-install-public-api-diff
             - test-install-maestro
             - test-install-swiftlint
+            - test-install-xcodes
           context: orb-publishing
           filters:
             branches:
