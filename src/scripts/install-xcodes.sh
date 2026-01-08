@@ -34,4 +34,3 @@ mise install
 xcodes version || { echo "❌ xcodes did not install properly."; exit 1; }
 
 echo "✅ xcodes installation completed"
-

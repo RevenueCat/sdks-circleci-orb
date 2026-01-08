@@ -1,0 +1,14 @@
+description: >
+  Installs mise tool version manager and xcbeautify. If version parameter is provided,
+  installs that specific version. Otherwise, reads version from mise.toml.
+parameters:
+  version:
+    type: string
+    default: ""
+    description: Version of xcbeautify to install. If empty, reads from mise.toml.
+steps:
+  - run:
+      name: Install mise and xcbeautify
+      command: <<include(scripts/install-xcbeautify.sh)>>
+      environment:
+        XCBEAUTIFY_VERSION: << parameters.version >>
