@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Get version from environment variable (empty string means not provided)
+VERSION=${XCBEAUTIFY_VERSION:-}
+
 # Add mise to PATH
 export PATH="$HOME/.local/bin:$PATH"
 
@@ -21,17 +24,23 @@ export PATH="$HOME/.local/share/mise/shims:$PATH"
 # Install xcbeautify plugin from asdf-xcbeautify
 mise plugins install xcbeautify https://github.com/mise-plugins/asdf-xcbeautify.git
 
-# Check if mise.toml exists
-if [ ! -f "mise.toml" ]; then
-    echo "❌ mise.toml not found. Please create a mise.toml file with xcbeautify version specified."
-    exit 1
+# Install xcbeautify - use parameter if provided, otherwise use mise.toml
+if [ -n "$VERSION" ]; then
+    echo "Installing xcbeautify version $VERSION (from parameter)..."
+    mise install "xcbeautify@$VERSION"
+    mise use -g "xcbeautify@$VERSION"
+else
+    # Check if mise.toml exists
+    if [ ! -f "mise.toml" ]; then
+        echo "❌ No version parameter provided and mise.toml not found."
+        echo "Please either pass a version parameter or create a mise.toml file with xcbeautify version specified."
+        exit 1
+    fi
+    echo "Installing xcbeautify from mise.toml..."
+    mise install
 fi
-
-# Install tools
-mise install
 
 # Verify xcbeautify
 xcbeautify --version || { echo "❌ xcbeautify did not install properly."; exit 1; }
 
 echo "✅ xcbeautify installation completed"
-
