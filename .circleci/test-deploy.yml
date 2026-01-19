@@ -2,12 +2,24 @@ version: 2.1
 orbs:
   <orb-name>: revenuecat/sdks-common-config@dev:<<pipeline.git.revision>>
   orb-tools: circleci/orb-tools@11.1
+  bats: circleci/bats@1.0
 
 filters: &filters
   tags:
     only: /.*/
 
 jobs:
+  run-bats-tests:
+    docker:
+      - image: cimg/base:current
+    steps:
+      - checkout
+      - bats/install
+      - run:
+          name: Run BATS tests
+          command: bats src/tests/*.bats
+
+
   test-install-tuist:
     macos:
       xcode: 16.4.0
@@ -73,9 +85,54 @@ jobs:
             export PATH="$HOME/.local/share/mise/shims:$PATH"
             xcodes version
 
+  test-pod-install-with-retry-success:
+    macos:
+      xcode: 16.4.0
+    resource_class: m4pro.medium
+    steps:
+      - checkout
+      - <orb-name>/pod-install-with-retry:
+          pod_install_directory: .
+          pod_install_command: "echo 'Simulated pod install success'"
+          max_retries: 3
+          retry_wait_seconds: 1
+
+  test-pod-install-with-retry-retries:
+    macos:
+      xcode: 16.4.0
+    resource_class: m4pro.medium
+    steps:
+      - checkout
+      - run:
+          name: Setup retry test
+          command: |
+            echo "0" > /tmp/attempt_count
+      - <orb-name>/pod-install-with-retry:
+          pod_install_directory: .
+          # Command fails twice, then succeeds on third attempt
+          pod_install_command: |
+            count=$(cat /tmp/attempt_count)
+            count=$((count + 1))
+            echo "$count" > /tmp/attempt_count
+            echo "Attempt $count"
+            [ "$count" -ge 3 ]
+          max_retries: 5
+          retry_wait_seconds: 2
+      - run:
+          name: Verify retries happened
+          command: |
+            count=$(cat /tmp/attempt_count)
+            if [ "$count" -ne 3 ]; then
+              echo "Expected 3 attempts, got $count"
+              exit 1
+            fi
+            echo "Retry test passed: command succeeded after $count attempts"
+
 workflows:
   test-deploy:
     jobs:
+      - run-bats-tests:
+          filters: *filters
       - orb-tools/pack:
           filters: *filters
       - test-install-tuist:
@@ -98,17 +155,28 @@ workflows:
           requires:
             - orb-tools/pack
           filters: *filters
+      - test-pod-install-with-retry-success:
+          requires:
+            - orb-tools/pack
+          filters: *filters
+      - test-pod-install-with-retry-retries:
+          requires:
+            - orb-tools/pack
+          filters: *filters
       - orb-tools/publish:
           orb-name: revenuecat/sdks-common-config
           vcs-type: << pipeline.project.type >>
           pub-type: production
           requires:
+            - run-bats-tests
             - orb-tools/pack
             - test-install-tuist
             - test-install-public-api-diff
             - test-install-maestro
             - test-install-swiftlint
             - test-install-xcodes
+            - test-pod-install-with-retry-success
+            - test-pod-install-with-retry-retries
           context: orb-publishing
           filters:
             branches:
