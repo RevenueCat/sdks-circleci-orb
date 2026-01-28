@@ -8,14 +8,14 @@ parameters:
 steps:
   - restore_cache:
       keys:
-        - v2-public-api-diff-<< parameters.version >>-{{ arch }}-{{ checksum "src/scripts/install-public-api-diff.sh" }}
+        - v2-public-api-diff-<< parameters.version >>-{{ arch }}
   - run:
       name: Install public-api-diff
       environment:
         PUBLIC_API_DIFF_VERSION: << parameters.version >>
       command: <<include(scripts/install-public-api-diff.sh)>>
   - save_cache:
-      key: v2-public-api-diff-<< parameters.version >>-{{ arch }}-{{ checksum "src/scripts/install-public-api-diff.sh" }}
+      key: v2-public-api-diff-<< parameters.version >>-{{ arch }}
       paths:
         - ~/bin/public-api-diff
         - ~/tools/adyen-swift-public-api-diff
