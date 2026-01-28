@@ -6,8 +6,16 @@ parameters:
     default: "0.10.1"
     description: Version of public-api-diff to install
 steps:
+  - restore_cache:
+      keys:
+        - v2-public-api-diff-<< parameters.version >>-{{ arch }}-{{ checksum "src/scripts/install-public-api-diff.sh" }}
   - run:
       name: Install public-api-diff
-      command: <<include(scripts/install-public-api-diff.sh)>>
       environment:
         PUBLIC_API_DIFF_VERSION: << parameters.version >>
+      command: <<include(scripts/install-public-api-diff.sh)>>
+  - save_cache:
+      key: v2-public-api-diff-<< parameters.version >>-{{ arch }}-{{ checksum "src/scripts/install-public-api-diff.sh" }}
+      paths:
+        - ~/bin/public-api-diff
+        - ~/tools/adyen-swift-public-api-diff
