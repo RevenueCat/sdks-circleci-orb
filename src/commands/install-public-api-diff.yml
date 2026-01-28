@@ -7,6 +7,7 @@ parameters:
     description: Version of public-api-diff to install
 steps:
   - restore_cache:
+      name: Restoring public-api-diff from cache
       keys:
         - v2-public-api-diff-<< parameters.version >>-{{ arch }}
   - run:
@@ -15,6 +16,7 @@ steps:
         PUBLIC_API_DIFF_VERSION: << parameters.version >>
       command: <<include(scripts/install-public-api-diff.sh)>>
   - save_cache:
+      name: Saving public-api-diff to cache
       key: v2-public-api-diff-<< parameters.version >>-{{ arch }}
       paths:
         - ~/bin/public-api-diff
