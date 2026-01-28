@@ -1,6 +1,18 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Early exit if already installed
+if public-api-diff --help >/dev/null 2>&1; then
+  echo "public-api-diff found in PATH. Skipping install."
+  exit 0
+elif "$HOME/bin/public-api-diff" --help >/dev/null 2>&1; then
+  echo "public-api-diff already installed in ~/bin. Skipping install."
+  # Ensure available to later steps
+  export PATH="$HOME/bin:$PATH"
+  echo "export PATH=\"\$HOME/bin:\$PATH\"" >> "$BASH_ENV"
+  exit 0
+fi
+
 # Get version from environment variable, default to 0.10.1 if not set
 VERSION=${PUBLIC_API_DIFF_VERSION:-0.10.1}
 
@@ -27,8 +39,9 @@ mkdir -p ~/bin
 # Copy the built executable
 cp .build/release/public-api-diff ~/bin/
 
-# Add to PATH for current session
-export PATH="$PATH:~/bin"
+# Add to PATH for current and subsequent steps
+export PATH="$HOME/bin:$PATH"
+echo "export PATH=\"\$HOME/bin:\$PATH\"" >> "$BASH_ENV"
 
 # Verify installation
 public-api-diff --help > /dev/null || { echo "❌ public-api-diff did not install properly."; exit 1; }
