@@ -1,0 +1,28 @@
+description: >
+  Runs pod install with automatic retry mechanism.
+  Useful when CocoaPods CDN hasn't propagated new pod versions yet.
+parameters:
+  pod_install_directory:
+    description: The directory where the Podfile is located
+    type: string
+  pod_install_command:
+    description: The pod install command to run
+    type: string
+    default: "bundle exec pod install --repo-update"
+  max_retries:
+    description: Maximum number of retry attempts
+    type: integer
+    default: 5
+  retry_wait_seconds:
+    description: Seconds to wait between retry attempts
+    type: integer
+    default: 300
+steps:
+  - run:
+      name: Pod Install (with retry)
+      working_directory: << parameters.pod_install_directory >>
+      environment:
+        PARAM_POD_INSTALL_COMMAND: << parameters.pod_install_command >>
+        PARAM_MAX_RETRIES: << parameters.max_retries >>
+        PARAM_RETRY_WAIT_SECONDS: << parameters.retry_wait_seconds >>
+      command: <<include(scripts/pod-install-with-retry.sh)>>
