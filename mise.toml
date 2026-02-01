@@ -1,4 +1,4 @@
 [tools]
 tuist = "latest"
-swiftlint = "0.62.2"
+swiftlint = "0.63.2"
 xcodes = "latest"
