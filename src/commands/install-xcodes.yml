@@ -4,4 +4,3 @@ steps:
   - run:
       name: Install mise and xcodes
       command: <<include(scripts/install-xcodes.sh)>>
-

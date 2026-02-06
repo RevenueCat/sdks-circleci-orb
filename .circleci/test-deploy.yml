@@ -73,6 +73,33 @@ jobs:
             export PATH="$HOME/.local/share/mise/shims:$PATH"
             xcodes version
 
+  test-install-xcbeautify:
+    macos:
+      xcode: 16.4.0
+    resource_class: m4pro.medium
+    steps:
+      - checkout
+      - <orb-name>/install-xcbeautify:
+          version: "3.1.2"
+      - run:
+          name: Verify xcbeautify installation
+          command: |
+            export PATH="$HOME/.local/share/mise/shims:$PATH"
+            xcbeautify --version
+
+  test-install-xcbeautify-from-mise-toml:
+    macos:
+      xcode: 16.4.0
+    resource_class: m4pro.medium
+    steps:
+      - checkout
+      - <orb-name>/install-xcbeautify
+      - run:
+          name: Verify xcbeautify installation
+          command: |
+            export PATH="$HOME/.local/share/mise/shims:$PATH"
+            xcbeautify --version
+
 workflows:
   test-deploy:
     jobs:
@@ -98,6 +125,14 @@ workflows:
           requires:
             - orb-tools/pack
           filters: *filters
+      - test-install-xcbeautify:
+          requires:
+            - orb-tools/pack
+          filters: *filters
+      - test-install-xcbeautify-from-mise-toml:
+          requires:
+            - orb-tools/pack
+          filters: *filters
       - orb-tools/publish:
           orb-name: revenuecat/sdks-common-config
           vcs-type: << pipeline.project.type >>
@@ -109,6 +144,8 @@ workflows:
             - test-install-maestro
             - test-install-swiftlint
             - test-install-xcodes
+            - test-install-xcbeautify
+            - test-install-xcbeautify-from-mise-toml
           context: orb-publishing
           filters:
             branches:
