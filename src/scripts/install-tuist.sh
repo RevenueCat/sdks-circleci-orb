@@ -33,4 +33,8 @@ mise install
 # Verify tuist
 tuist version || { echo "❌ Tuist did not install properly."; exit 1; }
 
+# Export TUIST_PATH for use in subsequent steps (e.g., fastlane)
+export TUIST_PATH="$HOME/.local/share/mise/shims/tuist"
+echo "export TUIST_PATH=\"$TUIST_PATH\"" >> "$BASH_ENV"
+
 echo "✅ Tuist installation completed" 
