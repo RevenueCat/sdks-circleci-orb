@@ -18,6 +18,10 @@ eval "$(mise activate bash)"
 # Add shims to PATH (required in CI)
 export PATH="$HOME/.local/share/mise/shims:$PATH"
 
+# Persist PATH changes to BASH_ENV for subsequent CircleCI steps
+# This ensures tuist (and other mise-installed tools) are available in subsequent steps
+echo "export PATH=\"\$HOME/.local/share/mise/shims:\$PATH\"" >> "$BASH_ENV"
+
 # Optional: Ensure tuist plugin is installed
 mise plugins install tuist
 
@@ -32,9 +36,5 @@ mise install
 
 # Verify tuist
 tuist version || { echo "❌ Tuist did not install properly."; exit 1; }
-
-# Export TUIST_PATH for use in subsequent steps (e.g., fastlane)
-export TUIST_PATH="$HOME/.local/share/mise/shims/tuist"
-echo "export TUIST_PATH=\"$TUIST_PATH\"" >> "$BASH_ENV"
 
 echo "✅ Tuist installation completed" 
