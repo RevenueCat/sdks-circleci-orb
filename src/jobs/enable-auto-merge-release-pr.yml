@@ -8,10 +8,14 @@ parameters:
   repo_name:
     type: string
     description: "GitHub repo name (e.g. purchases-ios)"
+  version:
+    type: string
+    default: ""
+    description: "Version string to use directly (e.g. 5.0.0). If empty, reads from version_file."
   version_file:
     type: string
     default: ".version"
-    description: "Path to the file containing the version number"
+    description: "Path to the file containing the version number. Only used when version is empty."
 docker:
   - image: cimg/ruby:<< parameters.ruby_version >>
 shell: /bin/bash --login -o pipefail
@@ -25,5 +29,6 @@ steps:
       name: Enable auto-merge on release PR
       environment:
         REPO_NAME: << parameters.repo_name >>
+        VERSION: << parameters.version >>
         VERSION_FILE: << parameters.version_file >>
       command: <<include(scripts/enable-auto-merge-release-pr.sh)>>
