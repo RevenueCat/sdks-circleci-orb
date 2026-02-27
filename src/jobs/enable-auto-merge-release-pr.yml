@@ -1,0 +1,29 @@
+description: >
+  Enables auto-merge on the release PR
+parameters:
+  ruby_version:
+    type: string
+    default: "3.1.2"
+    description: "Ruby version to use for the Docker image"
+  repo_name:
+    type: string
+    description: "GitHub repo name (e.g. purchases-ios)"
+  version_file:
+    type: string
+    default: ".version"
+    description: "Path to the file containing the version number"
+docker:
+  - image: cimg/ruby:<< parameters.ruby_version >>
+shell: /bin/bash --login -o pipefail
+steps:
+  - checkout
+  - setup-git-credentials
+  - trust-github-key
+  - install-gem-unix-dependencies:
+      cache-version: v1
+  - run:
+      name: Enable auto-merge on release PR
+      environment:
+        REPO_NAME: << parameters.repo_name >>
+        VERSION_FILE: << parameters.version_file >>
+      command: <<include(scripts/enable-auto-merge-release-pr.sh)>>
