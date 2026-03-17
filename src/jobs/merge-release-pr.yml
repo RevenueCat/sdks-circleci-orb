@@ -1,0 +1,39 @@
+description: >
+  Merges the release PR directly via the REST API
+parameters:
+  ruby_version:
+    type: string
+    default: "3.2.0"
+    description: "Ruby version to use for the Docker image"
+  repo_name:
+    type: string
+    description: "GitHub repo name (e.g. purchases-ios)"
+  version:
+    type: string
+    default: ""
+    description: "Version string to use directly (e.g. 5.0.0). If empty, reads from version_file."
+  version_file:
+    type: string
+    default: ".version"
+    description: "Path to the file containing the version number. Only used when version is empty."
+  merge_method:
+    type: string
+    default: "SQUASH"
+    description: "Merge method to use: SQUASH, MERGE, or REBASE"
+docker:
+  - image: cimg/ruby:<< parameters.ruby_version >>
+shell: /bin/bash --login -o pipefail
+steps:
+  - checkout
+  - setup-git-credentials
+  - trust-github-key
+  - install-gem-unix-dependencies:
+      cache-version: v1
+  - run:
+      name: Merge release PR
+      environment:
+        REPO_NAME: << parameters.repo_name >>
+        VERSION: << parameters.version >>
+        VERSION_FILE: << parameters.version_file >>
+        MERGE_METHOD: << parameters.merge_method >>
+      command: <<include(scripts/merge-release-pr.sh)>>
