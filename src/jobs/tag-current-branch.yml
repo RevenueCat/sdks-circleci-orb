@@ -3,7 +3,7 @@ description: >
 parameters:
   ruby_version:
     type: string
-    default: "3.1.2"
+    default: "3.2.0"
     description: "Ruby version to use for the Docker image"
 docker:
   - image: cimg/ruby:<< parameters.ruby_version >>
@@ -14,6 +14,9 @@ steps:
   - trust-github-key
   - install-gem-unix-dependencies:
       cache-version: v1
+  - run:
+      name: Check Release PR is approved
+      command: <<include(scripts/validate-pr-approved.sh)>>
   - run:
       name: Tag branch
       command: bundle exec fastlane tag_current_branch
