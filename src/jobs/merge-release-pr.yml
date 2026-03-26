@@ -20,6 +20,10 @@ parameters:
     type: string
     default: "SQUASH"
     description: "Merge method to use: SQUASH, MERGE, or REBASE"
+  use_merge_queue:
+    type: boolean
+    default: false
+    description: "If true, add the PR to the merge queue instead of merging directly"
 docker:
   - image: cimg/ruby:<< parameters.ruby_version >>
 shell: /bin/bash --login -o pipefail
@@ -36,4 +40,5 @@ steps:
         VERSION: << parameters.version >>
         VERSION_FILE: << parameters.version_file >>
         MERGE_METHOD: << parameters.merge_method >>
+        USE_MERGE_QUEUE: << parameters.use_merge_queue >>
       command: <<include(scripts/merge-release-pr.sh)>>
