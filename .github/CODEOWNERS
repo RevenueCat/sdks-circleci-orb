@@ -1,0 +1,4 @@
+# CODEOWNERS for sdks-circleci-orb
+
+# Default owners
+* @RevenueCat/sdk
