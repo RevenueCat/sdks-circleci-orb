@@ -7,6 +7,8 @@ else
     version="$(tr -d '\n' < "${VERSION_FILE}")"
 fi
 
+release_branch="release/${version}"
+
 using_merge_queue=false
 merge_queue_arg=""
 if [ "${USE_MERGE_QUEUE}" = "1" ] || [ "${USE_MERGE_QUEUE}" = "true" ]; then
@@ -17,7 +19,7 @@ fi
 merge_exit_code=0
 bundle exec fastlane run merge_pr \
     repo_name:"${REPO_NAME}" \
-    branch:"release/${version}" \
+    branch:"${release_branch}" \
     merge_method:"${MERGE_METHOD}" \
     ${merge_queue_arg} || merge_exit_code=$?
 
@@ -34,11 +36,11 @@ echo "Direct merge failed. Enabling auto-merge and updating branch..."
 
 bundle exec fastlane run enable_auto_merge_for_pr \
     repo_name:"${REPO_NAME}" \
-    branch:"release/${version}" \
+    branch:"${release_branch}" \
     merge_method:"${MERGE_METHOD}"
 
 bundle exec fastlane run update_pr_branch \
     repo_name:"${REPO_NAME}" \
-    branch:"release/${version}"
+    branch:"${release_branch}"
 
 echo "Auto-merge enabled and branch updated. The PR will merge automatically once CI passes."
