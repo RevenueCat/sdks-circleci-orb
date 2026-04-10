@@ -100,17 +100,6 @@ jobs:
             export PATH="$HOME/.local/share/mise/shims:$PATH"
             xcbeautify --version
 
-  test-await-maven-central-package:
-    docker:
-      - image: cimg/base:current
-    resource_class: small
-    steps:
-      - <orb-name>/await-maven-central-package:
-          coordinates: |
-            com.revenuecat.purchases:purchases:8.12.0
-            com.revenuecat.purchases:purchases-ui:8.12.0
-          timeout: "60"
-
 workflows:
   test-deploy:
     jobs:
@@ -144,7 +133,12 @@ workflows:
           requires:
             - orb-tools/pack
           filters: *filters
-      - test-await-maven-central-package:
+      - <orb-name>/await-maven-central-package:
+          name: test-await-maven-central-package
+          coordinates: |
+            com.revenuecat.purchases:purchases:8.12.0
+            com.revenuecat.purchases:purchases-ui:8.12.0
+          timeout: "60"
           requires:
             - orb-tools/pack
           filters: *filters

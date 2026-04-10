@@ -17,10 +17,15 @@ parameters:
     default: "1800"
     description: "Maximum seconds to wait before failing"
 docker:
-  - image: cimg/base:current
+  - image: cimg/node:current
 resource_class: small
 steps:
-  - await-maven-central-package:
-      coordinates: << parameters.coordinates >>
-      poll_interval: << parameters.poll_interval >>
-      timeout: << parameters.timeout >>
+  - run:
+      name: Wait for Maven Central availability
+      environment:
+        COORDINATES: << parameters.coordinates >>
+        POLL_INTERVAL: << parameters.poll_interval >>
+        TIMEOUT: << parameters.timeout >>
+      no_output_timeout: << parameters.timeout >>s
+      shell: node
+      command: <<include(scripts/await-maven-central-package.js)>>
