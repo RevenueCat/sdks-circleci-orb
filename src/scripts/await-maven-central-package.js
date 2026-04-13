@@ -59,13 +59,15 @@ async function main() {
   }
   console.log("");
 
-  let elapsed = 0;
+  const startTime = Date.now();
 
   while (pending.length > 0) {
+    const elapsed = Math.round((Date.now() - startTime) / 1000);
+
     if (elapsed >= TIMEOUT) {
       console.log("");
       console.error(
-        `Error: Timed out after ${TIMEOUT}s. The following artifacts are still not available:`
+        `Error: Timed out after ${elapsed}s. The following artifacts are still not available:`
       );
       for (const coord of pending) {
         console.error(`  - ${coord.raw}`);
@@ -90,7 +92,6 @@ async function main() {
 
     console.log(`[${elapsed}s/${TIMEOUT}s] Still waiting for ${pending.length} artifact(s)...`);
     await sleep(POLL_INTERVAL);
-    elapsed += POLL_INTERVAL;
   }
 
   console.log("");
