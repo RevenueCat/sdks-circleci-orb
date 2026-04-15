@@ -1,0 +1,31 @@
+description: >
+  Waits for one or more Maven artifacts to become available on Maven Central.
+  Lightweight job that polls until all specified coordinates are reachable or the timeout is exceeded.
+parameters:
+  coordinates:
+    type: string
+    description: >
+      Newline or space-separated Maven coordinates to wait for.
+      Each entry must be a full groupId:artifactId:version triple
+      (e.g. "com.revenuecat.purchases:purchases:8.0.0").
+  poll_interval:
+    type: string
+    default: "30"
+    description: "Seconds between availability checks"
+  timeout:
+    type: string
+    default: "1800"
+    description: "Maximum seconds to wait before failing"
+docker:
+  - image: cimg/node:current
+resource_class: small
+steps:
+  - run:
+      name: Wait for Maven Central availability
+      environment:
+        COORDINATES: << parameters.coordinates >>
+        POLL_INTERVAL: << parameters.poll_interval >>
+        TIMEOUT: << parameters.timeout >>
+      no_output_timeout: << parameters.timeout >>s
+      shell: node
+      command: <<include(scripts/await-maven-central-package.js)>>
