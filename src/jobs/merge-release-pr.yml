@@ -1,5 +1,9 @@
 description: >
-  Merges the release PR directly via the REST API
+  Merges the release PR directly via the REST API. If the merge fails
+  (e.g. branch not up-to-date) and merge queue is not in use, enables
+  auto-merge and updates the PR branch instead. In that case the job
+  exits successfully but the actual merge happens asynchronously once
+  CI passes on the updated branch.
 parameters:
   ruby_version:
     type: string
@@ -34,7 +38,7 @@ steps:
   - install-gem-unix-dependencies:
       cache-version: v1
   - run:
-      name: Merge release PR
+      name: Merge release PR (with auto-merge fallback)
       environment:
         REPO_NAME: << parameters.repo_name >>
         VERSION: << parameters.version >>
