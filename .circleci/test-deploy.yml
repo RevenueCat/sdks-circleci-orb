@@ -133,6 +133,15 @@ workflows:
           requires:
             - orb-tools/pack
           filters: *filters
+      - <orb-name>/await-maven-central-package:
+          name: test-await-maven-central-package
+          coordinates: |
+            com.revenuecat.purchases:purchases:8.12.0
+            com.revenuecat.purchases:purchases-ui:8.12.0
+          timeout: "60"
+          requires:
+            - orb-tools/pack
+          filters: *filters
       - orb-tools/publish:
           orb-name: revenuecat/sdks-common-config
           vcs-type: << pipeline.project.type >>
@@ -146,6 +155,7 @@ workflows:
             - test-install-xcodes
             - test-install-xcbeautify
             - test-install-xcbeautify-from-mise-toml
+            - test-await-maven-central-package
           context: orb-publishing
           filters:
             branches:
