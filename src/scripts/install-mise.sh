@@ -54,5 +54,6 @@ eval "$(mise activate bash)"
 # Add shims to PATH (required in CI)
 export PATH="$HOME/.local/share/mise/shims:$PATH"
 
-# Persist PATH changes to BASH_ENV for subsequent CircleCI steps.
-echo "export PATH=\"\$HOME/.local/share/mise/shims:\$PATH\"" >> "$BASH_ENV"
+# Persist PATH changes to BASH_ENV so mise and its shims are available in
+# subsequent CircleCI run steps (each step starts a fresh shell).
+echo "export PATH=\"\$HOME/.local/bin:\$HOME/.local/share/mise/shims:\$PATH\"" >> "$BASH_ENV"
