@@ -8,6 +8,22 @@ filters: &filters
     only: /.*/
 
 jobs:
+  test-install-mise:
+    macos:
+      xcode: 16.4.0
+    resource_class: m4pro.medium
+    steps:
+      - checkout
+      - <orb-name>/install-mise
+      - run:
+          name: Verify mise installation and persisted PATH
+          # Intentionally does not re-export PATH: this job verifies that
+          # install-mise persists the mise binary path to BASH_ENV so that
+          # subsequent run steps can find it.
+          command: |
+            mise --version
+            which mise
+
   test-install-tuist:
     macos:
       xcode: 16.4.0
@@ -105,6 +121,10 @@ workflows:
     jobs:
       - orb-tools/pack:
           filters: *filters
+      - test-install-mise:
+          requires:
+            - orb-tools/pack
+          filters: *filters
       - test-install-tuist:
           requires:
             - orb-tools/pack
@@ -148,6 +168,7 @@ workflows:
           pub-type: production
           requires:
             - orb-tools/pack
+            - test-install-mise
             - test-install-tuist
             - test-install-public-api-diff
             - test-install-maestro
