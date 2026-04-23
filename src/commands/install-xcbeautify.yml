@@ -7,8 +7,9 @@ parameters:
     default: ""
     description: Version of xcbeautify to install. If empty, reads from mise.toml.
 steps:
+  - install-mise
   - run:
-      name: Install mise and xcbeautify
+      name: Install xcbeautify
       command: <<include(scripts/install-xcbeautify.sh)>>
       environment:
         XCBEAUTIFY_VERSION: << parameters.version >>

@@ -1,6 +1,7 @@
 description: >
   Installs mise tool version manager and Tuist (reads from .mise.toml)
 steps:
+  - install-mise
   - run:
-      name: Install mise and Tuist
+      name: Install Tuist
       command: <<include(scripts/install-tuist.sh)>>
