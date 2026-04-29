@@ -59,9 +59,14 @@ jobs:
       - checkout
       - <orb-name>/install-maestro
       - run:
-          name: Verify Maestro installation
+          name: Verify Maestro installation and persisted PATH
+          # Intentionally does not re-export PATH: this job verifies that
+          # install-maestro persists ~/.maestro/bin to BASH_ENV so subsequent
+          # run steps can invoke `maestro` directly. Also asserts the pinned
+          # version was actually installed.
           command: |
-            maestro --version
+            maestro --version | tee /tmp/maestro-version.txt
+            grep -q "2.5.0" /tmp/maestro-version.txt
 
   test-install-swiftlint:
     macos:
