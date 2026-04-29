@@ -23,7 +23,8 @@ else
     echo "Installing Maestro ${MAESTRO_VERSION} into ${MAESTRO_DIR}..."
     tmpdir="$(mktemp -d)"
     trap 'rm -rf "$tmpdir"' EXIT
-    curl -fsSL -o "$tmpdir/maestro.zip" "$url"
+    curl -fsSL --connect-timeout 10 --max-time 300 --retry 3 --retry-connrefused \
+        -o "$tmpdir/maestro.zip" "$url"
     echo "${MAESTRO_SHA256}  $tmpdir/maestro.zip" | shasum -a 256 -c -
 
     unzip -q "$tmpdir/maestro.zip" -d "$tmpdir"
