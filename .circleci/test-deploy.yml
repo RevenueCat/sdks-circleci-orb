@@ -65,8 +65,9 @@ jobs:
           # run steps can invoke `maestro` directly. Also asserts the pinned
           # version was actually installed.
           command: |
+            expected="$(grep -oE 'MAESTRO_VERSION="[^"]+"' src/scripts/install-maestro.sh | sed -E 's/MAESTRO_VERSION="(.*)"/\1/')"
             maestro --version | tee /tmp/maestro-version.txt
-            grep -q "2.5.0" /tmp/maestro-version.txt
+            grep -q "${expected}" /tmp/maestro-version.txt
 
   test-install-swiftlint:
     macos:
