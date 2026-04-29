@@ -68,6 +68,26 @@ jobs:
             expected="$(grep -oE 'MAESTRO_VERSION="[^"]+"' src/scripts/install-maestro.sh | sed -E 's/MAESTRO_VERSION="(.*)"/\1/')"
             maestro --version | tee /tmp/maestro-version.txt
             grep -q "${expected}" /tmp/maestro-version.txt
+      - run:
+          name: Verify SHA-mismatch fails the install
+          # Sanity-check the integrity gate: substitute a bogus SHA into a
+          # copy of the script and assert the install exits non-zero before
+          # extracting anything. Uses a separate $MAESTRO_DIR so the real
+          # install above is left intact.
+          #
+          # BASH_ENV must be cleared for the bad-install invocation: every
+          # non-interactive bash on CircleCI sources $BASH_ENV at startup,
+          # and the previous install-maestro step appended `export PATH=...`
+          # to it. Without this, the subprocess re-sources the real
+          # $MAESTRO_DIR and skips the download via early-exit.
+          command: |
+            sed 's/MAESTRO_SHA256="[^"]*"/MAESTRO_SHA256="0000000000000000000000000000000000000000000000000000000000000000"/' \
+              src/scripts/install-maestro.sh > /tmp/bad-install-maestro.sh
+            if (unset BASH_ENV; MAESTRO_DIR="$HOME/.maestro-bad" bash /tmp/bad-install-maestro.sh); then
+                echo "ERROR: install with bad SHA should have failed but succeeded" >&2
+                exit 1
+            fi
+            echo "OK: SHA-mismatch correctly rejected"
 
   test-install-swiftlint:
     macos:
