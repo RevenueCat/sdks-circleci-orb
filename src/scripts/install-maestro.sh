@@ -36,3 +36,8 @@ fi
 
 # Persist PATH for subsequent CircleCI run steps (each step starts a fresh shell).
 echo "export PATH=\"${MAESTRO_DIR}/bin:\$PATH\"" >> "$BASH_ENV"
+
+# Suppress maestro's per-invocation update check against mobile.dev. The
+# install above is version-pinned and SHA-verified; we don't want CI runs
+# phoning out for a check that can't change what gets executed anyway.
+echo 'export MAESTRO_DISABLE_UPDATE_CHECK=true' >> "$BASH_ENV"
