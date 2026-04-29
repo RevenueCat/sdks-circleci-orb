@@ -26,10 +26,10 @@ else
     curl -fsSL -o "$tmpdir/maestro.zip" "$url"
     echo "${MAESTRO_SHA256}  $tmpdir/maestro.zip" | shasum -a 256 -c -
 
+    unzip -q "$tmpdir/maestro.zip" -d "$tmpdir"
     rm -rf "$MAESTRO_DIR"
-    mkdir -p "$MAESTRO_DIR"
-    unzip -q "$tmpdir/maestro.zip" -d "$tmpdir/extract"
-    cp -R "$tmpdir/extract/maestro/." "$MAESTRO_DIR/"
+    mkdir -p "$(dirname "$MAESTRO_DIR")"
+    mv "$tmpdir/maestro" "$MAESTRO_DIR"
     echo "$MAESTRO_VERSION" > "$version_marker"
 fi
 
