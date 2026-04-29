@@ -47,10 +47,16 @@ jobs:
           # copy of the script and assert the install exits non-zero before
           # extracting anything. Uses a separate $SDKMAN_DIR so the real
           # install above is left intact.
+          #
+          # BASH_ENV must be cleared for the bad-install invocation: every
+          # non-interactive bash on CircleCI sources $BASH_ENV at startup,
+          # and the previous install-sdkman step appended `export
+          # SDKMAN_DIR=...` to it. Without this, the subprocess re-sources
+          # the real $SDKMAN_DIR and skips the download via early-exit.
           command: |
             sed 's/SDKMAN_CLI_SHA256="[^"]*"/SDKMAN_CLI_SHA256="0000000000000000000000000000000000000000000000000000000000000000"/' \
               src/scripts/install-sdkman.sh > /tmp/bad-install-sdkman.sh
-            if SDKMAN_DIR="$HOME/.sdkman-bad" bash /tmp/bad-install-sdkman.sh; then
+            if (unset BASH_ENV; SDKMAN_DIR="$HOME/.sdkman-bad" bash /tmp/bad-install-sdkman.sh); then
                 echo "ERROR: install with bad SHA should have failed but succeeded" >&2
                 exit 1
             fi
