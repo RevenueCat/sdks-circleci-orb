@@ -29,7 +29,8 @@ else
     echo "Installing SDKMAN ${SDKMAN_VERSION} (${platform}) into ${SDKMAN_DIR}..."
     tmpdir="$(mktemp -d)"
     trap 'rm -rf "$tmpdir"' EXIT
-    curl -fsSL -o "$tmpdir/sdkman-cli.zip" "$url"
+    curl -fsSL --connect-timeout 10 --max-time 60 --retry 3 --retry-connrefused \
+        -o "$tmpdir/sdkman-cli.zip" "$url"
     echo "${SDKMAN_CLI_SHA256}  $tmpdir/sdkman-cli.zip" | shasum -a 256 -c -
 
     rm -rf "$SDKMAN_DIR"
@@ -39,11 +40,16 @@ else
     mkdir -p "$SDKMAN_DIR/libexec" "$SDKMAN_DIR/etc" "$SDKMAN_DIR/var" \
              "$SDKMAN_DIR/candidates" "$SDKMAN_DIR/tmp" "$SDKMAN_DIR/ext"
 
-    # Write the config the upstream installer would write, with two CI-friendly
-    # tweaks: rcupdate=false (we manage shell init ourselves) and
-    # selfupdate=false (we never want SDKMAN to silently upgrade itself in CI).
-    # sdkman_native_enable=false because we install only the script CLI,
-    # not the optional Rust native binary; sdkman falls back to shell impls.
+    # Write a CI-friendly SDKMAN config:
+    # - sdkman_auto_update / sdkman_selfupdate_enable = false: SDKMAN must
+    #   never silently upgrade itself in CI; the version is pinned above.
+    # - sdkman_auto_env = false: don't auto-source .sdkmanrc on cd; consumers
+    #   invoke `sdk env install` explicitly.
+    # - sdkman_native_enable = false: we install only the script CLI, not the
+    #   optional Rust native binary, so sdkman must fall back to shell impls
+    #   for commands that have native counterparts.
+    # - sdkman_healthcheck_enable = false: skip the api.sdkman.io probe that
+    #   runs on every shell init.
     cat > "$SDKMAN_DIR/etc/config" <<'EOF'
 sdkman_auto_answer=false
 sdkman_auto_complete=true
@@ -70,7 +76,8 @@ EOF
     # does. The contents are non-sensitive (a list of names like
     # "java,kotlin,gradle,…") and any tampering can't widen what `sdk env
     # install` will install — that's controlled by .sdkmanrc.
-    curl -fsSL "https://api.sdkman.io/2/candidates/all" \
+    curl -fsSL --connect-timeout 10 --max-time 30 --retry 3 --retry-connrefused \
+        "https://api.sdkman.io/2/candidates/all" \
         -o "$SDKMAN_DIR/var/candidates"
 fi
 

@@ -26,7 +26,7 @@ jobs:
 
   test-install-sdkman:
     macos:
-      xcode: 26.3.0
+      xcode: 26.4.1
     resource_class: m4pro.medium
     steps:
       - checkout
@@ -38,8 +38,23 @@ jobs:
           # line to $BASH_ENV so the `sdk` shell function is available in
           # subsequent run steps.
           command: |
+            expected="$(grep -oE 'SDKMAN_VERSION="[^"]+"' src/scripts/install-sdkman.sh | sed -E 's/SDKMAN_VERSION="(.*)"/\1/')"
             sdk version | tee /tmp/sdk-version.txt
-            grep -q "SDKMAN 5.22.5" /tmp/sdk-version.txt
+            grep -q "SDKMAN ${expected}" /tmp/sdk-version.txt
+      - run:
+          name: Verify SHA-mismatch fails the install
+          # Sanity-check the integrity gate: substitute a bogus SHA into a
+          # copy of the script and assert the install exits non-zero before
+          # extracting anything. Uses a separate $SDKMAN_DIR so the real
+          # install above is left intact.
+          command: |
+            sed 's/SDKMAN_CLI_SHA256="[^"]*"/SDKMAN_CLI_SHA256="0000000000000000000000000000000000000000000000000000000000000000"/' \
+              src/scripts/install-sdkman.sh > /tmp/bad-install-sdkman.sh
+            if SDKMAN_DIR="$HOME/.sdkman-bad" bash /tmp/bad-install-sdkman.sh; then
+                echo "ERROR: install with bad SHA should have failed but succeeded" >&2
+                exit 1
+            fi
+            echo "OK: SHA-mismatch correctly rejected"
 
   test-install-tuist:
     macos:
