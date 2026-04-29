@@ -1,5 +1,7 @@
 description: >
-  Installs Maestro tool for running UI tests
+  Installs Maestro CLI from a pinned, SHA256-verified GitHub release.
+  Persists the Maestro bin directory to $PATH via $BASH_ENV so subsequent
+  run steps can invoke `maestro` directly.
 steps:
   - run:
       name: Install Maestro
