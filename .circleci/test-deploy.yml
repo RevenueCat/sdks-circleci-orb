@@ -24,6 +24,44 @@ jobs:
             mise --version
             which mise
 
+  test-install-sdkman:
+    macos:
+      xcode: 26.4.1
+    resource_class: m4pro.medium
+    steps:
+      - checkout
+      - <orb-name>/install-sdkman
+      - run:
+          name: Verify SDKMAN installation and persisted shell init
+          # Intentionally does not source sdkman-init.sh manually: this job
+          # verifies that install-sdkman persists $SDKMAN_DIR and the source
+          # line to $BASH_ENV so the `sdk` shell function is available in
+          # subsequent run steps.
+          command: |
+            expected="$(grep -oE 'SDKMAN_VERSION="[^"]+"' src/scripts/install-sdkman.sh | sed -E 's/SDKMAN_VERSION="(.*)"/\1/')"
+            sdk version | tee /tmp/sdk-version.txt
+            grep -q "SDKMAN ${expected}" /tmp/sdk-version.txt
+      - run:
+          name: Verify SHA-mismatch fails the install
+          # Sanity-check the integrity gate: substitute a bogus SHA into a
+          # copy of the script and assert the install exits non-zero before
+          # extracting anything. Uses a separate $SDKMAN_DIR so the real
+          # install above is left intact.
+          #
+          # BASH_ENV must be cleared for the bad-install invocation: every
+          # non-interactive bash on CircleCI sources $BASH_ENV at startup,
+          # and the previous install-sdkman step appended `export
+          # SDKMAN_DIR=...` to it. Without this, the subprocess re-sources
+          # the real $SDKMAN_DIR and skips the download via early-exit.
+          command: |
+            sed 's/SDKMAN_CLI_SHA256="[^"]*"/SDKMAN_CLI_SHA256="0000000000000000000000000000000000000000000000000000000000000000"/' \
+              src/scripts/install-sdkman.sh > /tmp/bad-install-sdkman.sh
+            if (unset BASH_ENV; SDKMAN_DIR="$HOME/.sdkman-bad" bash /tmp/bad-install-sdkman.sh); then
+                echo "ERROR: install with bad SHA should have failed but succeeded" >&2
+                exit 1
+            fi
+            echo "OK: SHA-mismatch correctly rejected"
+
   test-install-tuist:
     macos:
       xcode: 26.3.0
@@ -125,6 +163,10 @@ workflows:
           requires:
             - orb-tools/pack
           filters: *filters
+      - test-install-sdkman:
+          requires:
+            - orb-tools/pack
+          filters: *filters
       - test-install-tuist:
           requires:
             - orb-tools/pack
@@ -169,6 +211,7 @@ workflows:
           requires:
             - orb-tools/pack
             - test-install-mise
+            - test-install-sdkman
             - test-install-tuist
             - test-install-public-api-diff
             - test-install-maestro
