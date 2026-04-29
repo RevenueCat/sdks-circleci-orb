@@ -24,6 +24,23 @@ jobs:
             mise --version
             which mise
 
+  test-install-sdkman:
+    macos:
+      xcode: 26.3.0
+    resource_class: m4pro.medium
+    steps:
+      - checkout
+      - <orb-name>/install-sdkman
+      - run:
+          name: Verify SDKMAN installation and persisted shell init
+          # Intentionally does not source sdkman-init.sh manually: this job
+          # verifies that install-sdkman persists $SDKMAN_DIR and the source
+          # line to $BASH_ENV so the `sdk` shell function is available in
+          # subsequent run steps.
+          command: |
+            sdk version | tee /tmp/sdk-version.txt
+            grep -q "SDKMAN 5.22.5" /tmp/sdk-version.txt
+
   test-install-tuist:
     macos:
       xcode: 26.3.0
@@ -125,6 +142,10 @@ workflows:
           requires:
             - orb-tools/pack
           filters: *filters
+      - test-install-sdkman:
+          requires:
+            - orb-tools/pack
+          filters: *filters
       - test-install-tuist:
           requires:
             - orb-tools/pack
@@ -169,6 +190,7 @@ workflows:
           requires:
             - orb-tools/pack
             - test-install-mise
+            - test-install-sdkman
             - test-install-tuist
             - test-install-public-api-diff
             - test-install-maestro

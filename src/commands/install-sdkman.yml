@@ -1,0 +1,8 @@
+description: >
+  Installs SDKMAN from a pinned, SHA256-verified GitHub release.
+  Persists $SDKMAN_DIR and the sdkman-init source line to $BASH_ENV so the
+  `sdk` shell function is available in subsequent run steps.
+steps:
+  - run:
+      name: Install SDKMAN
+      command: <<include(scripts/install-sdkman.sh)>>
