@@ -2,4 +2,4 @@
 tuist = "4.186.2"
 swiftlint = "0.63.2"
 xcodes = "latest"
-xcbeautify = "3.1.2"
+xcbeautify = "3.2.1"
