@@ -30,7 +30,7 @@ steps:
   - install-mise
   - run:
       name: Reset update branch
-      command: git fetch origin && git checkout -B update-error-codes origin/main
+      command: <<include(scripts/reset-update-branch.sh)>>
   - run:
       name: Generate error codes
       environment:
@@ -39,11 +39,9 @@ steps:
       command: <<include(scripts/regenerate-error-codes.sh)>>
   - run:
       name: Stop if generated file is unchanged
-      command: |
-        if git diff --quiet -- "<< parameters.output >>"; then
-          echo "Generated error codes are up to date. Nothing to do."
-          circleci-agent step halt
-        fi
+      environment:
+        OUTPUT: << parameters.output >>
+      command: <<include(scripts/stop-if-error-codes-unchanged.sh)>>
   - steps: << parameters.update_api_steps >>
   - run:
       name: Commit and open PR
