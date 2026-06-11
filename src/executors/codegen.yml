@@ -1,0 +1,6 @@
+description: >
+  Default executor for codegen jobs: a Docker image with both Ruby (for fastlane) and
+  Node. Generation uses the SSOT repo's own mise-pinned toolchain, so this only needs to
+  satisfy fastlane and any lightweight repo tooling. Override for native toolchains.
+docker:
+  - image: cimg/ruby:3.3.0-node
