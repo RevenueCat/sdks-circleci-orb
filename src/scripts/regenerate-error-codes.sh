@@ -8,6 +8,8 @@ git clone --depth 1 git@github.com:RevenueCat/purchases-error-codes.git ../purch
 
 repo_root="${PWD}"
 cd ../purchases-error-codes
+# Trust the freshly cloned config so mise loads it non-interactively in CI.
+mise trust
 mise install
 echo "export ERROR_CODES_SHA=$(git rev-parse HEAD)" >> "${BASH_ENV}"
 mise exec -- pnpm install --frozen-lockfile
