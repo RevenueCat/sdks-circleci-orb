@@ -1,7 +1,7 @@
 description: >
-  Regenerates a platform's error codes from the purchases-error-codes SSOT repo and
-  opens/updates a PR. Generation runs via the SSOT repo's mise-pinned toolchain, so the
-  consumer only needs whatever its own API-contract dump requires.
+  Copies a platform's committed generated error codes from the purchases-error-codes
+  SSOT repo and opens/updates a PR. The SSOT commits the generated files, so no JS
+  toolchain is needed here; the consumer only needs whatever its own API-contract dump requires.
 parameters:
   executor:
     type: executor
@@ -27,16 +27,15 @@ steps:
   - checkout
   - setup-git-credentials
   - trust-github-key
-  - install-mise
   - run:
       name: Reset update branch
       command: <<include(scripts/reset-update-branch.sh)>>
   - run:
-      name: Generate error codes
+      name: Copy error codes
       environment:
         PLATFORM: << parameters.platform >>
         OUTPUT: << parameters.output >>
-      command: <<include(scripts/regenerate-error-codes.sh)>>
+      command: <<include(scripts/copy-error-codes.sh)>>
   - run:
       name: Stop if generated file is unchanged
       environment:
