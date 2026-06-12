@@ -1,0 +1,49 @@
+description: >
+  Copies a platform's committed generated error codes from the purchases-error-codes
+  SSOT repo and opens/updates a PR. The SSOT commits the generated files, so no JS
+  toolchain is needed here; the consumer only needs whatever its own API-contract dump requires.
+parameters:
+  executor:
+    type: executor
+    default: codegen
+    description: "Executor to run on. Defaults to a Ruby+Node Docker image; override for native toolchains (Android/iOS)."
+  platform:
+    type: string
+    description: "Generator platform: android, ios, or js"
+  output:
+    type: string
+    description: "Repo-root-relative path of the generated file to write"
+  update_api_steps:
+    type: steps
+    default: []
+    description: "Repo-specific steps that regenerate the API contract. Must also leave `bundle exec fastlane` runnable, since the PR step uses it."
+  commit_paths:
+    type: string
+    default: ""
+    description: "Comma-separated paths to stage relative to the repo root; if empty, stages all changes"
+executor: << parameters.executor >>
+shell: /bin/bash --login -o pipefail
+steps:
+  - checkout
+  - setup-git-credentials
+  - trust-github-key
+  - run:
+      name: Reset update branch
+      command: <<include(scripts/reset-update-branch.sh)>>
+  - run:
+      name: Copy error codes
+      environment:
+        PLATFORM: << parameters.platform >>
+        OUTPUT: << parameters.output >>
+      command: <<include(scripts/copy-error-codes.sh)>>
+  - run:
+      name: Stop if generated file is unchanged
+      environment:
+        OUTPUT: << parameters.output >>
+      command: <<include(scripts/stop-if-error-codes-unchanged.sh)>>
+  - steps: << parameters.update_api_steps >>
+  - run:
+      name: Commit and open PR
+      environment:
+        COMMIT_PATHS: << parameters.commit_paths >>
+      command: <<include(scripts/open-error-codes-pr.sh)>>

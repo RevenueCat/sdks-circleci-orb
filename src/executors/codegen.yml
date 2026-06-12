@@ -1,0 +1,6 @@
+description: >
+  Default executor for codegen jobs: a Docker image with both Ruby (for fastlane) and
+  Node. Error codes are copied from the SSOT (no JS toolchain needed); this just needs to
+  satisfy fastlane and any lightweight repo tooling (e.g. JS API-dump). Override for native toolchains.
+docker:
+  - image: cimg/ruby:3.3.0-node
