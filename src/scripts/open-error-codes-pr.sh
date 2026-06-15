@@ -19,5 +19,5 @@ bundle exec fastlane run commit_and_create_pr_if_necessary \
     commit_message:"[Automated] Update generated error codes (purchases-error-codes@${ERROR_CODES_SHA})" \
     title:"[AUTOMATIC] Update generated error codes" \
     body:"Automatic update of generated error codes from https://github.com/RevenueCat/purchases-error-codes/commit/${ERROR_CODES_SHA}. This branch is auto-regenerated and force-pushed on each update; manual changes pushed here will be overwritten." \
-    labels:"pr:other,auto:codegen" \
+    labels:"pr:other,pr:auto_codegen" \
     commit_paths:"${COMMIT_PATHS}"
