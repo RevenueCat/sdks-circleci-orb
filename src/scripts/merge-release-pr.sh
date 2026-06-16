@@ -23,10 +23,20 @@ bundle exec fastlane run merge_pr \
     merge_method:"${MERGE_METHOD}" \
     ${merge_queue_arg} || merge_exit_code=$?
 
+# This script runs in a login shell (bash --login) with `set -e`. Using the
+# `exit` builtin makes bash source ~/.bash_logout, whose default `clear_console`
+# command exits non-zero when there is no controlling TTY (as in CI). With
+# `set -e` still active that failure overrides our intended status, which would
+# turn a successful merge into a job failure. Disabling `set -e` here preserves
+# the `exit 0`. Paths that fall off the end of the script do not source
+# ~/.bash_logout, so they are unaffected.
 if [ "${merge_exit_code}" -eq 0 ]; then
+    set +e
     exit 0
 fi
 
+# A non-zero exit here fails the job regardless of whether ~/.bash_logout rewrites
+# the exact code, so there's no need to disable `set -e`.
 if [ "${using_merge_queue}" = true ]; then
     echo "Merge queue enqueue failed."
     exit "${merge_exit_code}"
