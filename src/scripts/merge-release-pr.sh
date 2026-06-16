@@ -35,10 +35,11 @@ if [ "${merge_exit_code}" -eq 0 ]; then
     exit 0
 fi
 
-# A non-zero exit here fails the job regardless of whether ~/.bash_logout rewrites
-# the exact code, so there's no need to disable `set -e`.
+# The job fails on any non-zero exit, so there's no need to disable `set -e`
+# here even though ~/.bash_logout may rewrite the exact code (see above). The
+# original code is logged below so it isn't lost.
 if [ "${using_merge_queue}" = true ]; then
-    echo "Merge queue enqueue failed."
+    echo "Merge queue enqueue failed (exit code ${merge_exit_code})."
     exit "${merge_exit_code}"
 fi
 
