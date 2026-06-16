@@ -32,9 +32,9 @@ bundle exec fastlane run merge_pr \
 # does nothing here and simply lets the script end.
 if [ "${merge_exit_code}" -ne 0 ]; then
     # The job fails on any non-zero exit, so the ~/.bash_logout caveat above is
-    # harmless here; the original code is logged so it isn't lost.
+    # harmless on this failure path.
     if [ "${using_merge_queue}" = true ]; then
-        echo "Merge queue enqueue failed (exit code ${merge_exit_code})."
+        echo "Merge queue enqueue failed."
         exit "${merge_exit_code}"
     fi
 
