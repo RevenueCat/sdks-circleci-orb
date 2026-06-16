@@ -23,24 +23,29 @@ bundle exec fastlane run merge_pr \
     merge_method:"${MERGE_METHOD}" \
     ${merge_queue_arg} || merge_exit_code=$?
 
-if [ "${merge_exit_code}" -eq 0 ]; then
-    exit 0
+# On success we must NOT call `exit` explicitly. This script runs in a login
+# shell (bash --login) and the `exit` builtin makes bash source ~/.bash_logout,
+# whose default `clear_console` command exits non-zero when there is no
+# controlling TTY (as in CI). With `set -e` still active that failure would
+# override our status and turn a successful merge into a job failure. Falling
+# off the end of the script does not source ~/.bash_logout, so the success path
+# does nothing here and simply lets the script end.
+if [ "${merge_exit_code}" -ne 0 ]; then
+    if [ "${using_merge_queue}" = true ]; then
+        echo "Merge queue enqueue failed (exit code ${merge_exit_code})."
+        exit "${merge_exit_code}"
+    fi
+
+    echo "Direct merge failed. Enabling auto-merge and updating branch..."
+
+    bundle exec fastlane run enable_auto_merge_for_pr \
+        repo_name:"${REPO_NAME}" \
+        branch:"${release_branch}" \
+        merge_method:"${MERGE_METHOD}"
+
+    bundle exec fastlane run update_pr_branch \
+        repo_name:"${REPO_NAME}" \
+        branch:"${release_branch}"
+
+    echo "Auto-merge enabled and branch updated. The PR will merge automatically once CI passes."
 fi
-
-if [ "${using_merge_queue}" = true ]; then
-    echo "Merge queue enqueue failed."
-    exit "${merge_exit_code}"
-fi
-
-echo "Direct merge failed. Enabling auto-merge and updating branch..."
-
-bundle exec fastlane run enable_auto_merge_for_pr \
-    repo_name:"${REPO_NAME}" \
-    branch:"${release_branch}" \
-    merge_method:"${MERGE_METHOD}"
-
-bundle exec fastlane run update_pr_branch \
-    repo_name:"${REPO_NAME}" \
-    branch:"${release_branch}"
-
-echo "Auto-merge enabled and branch updated. The PR will merge automatically once CI passes."
