@@ -40,17 +40,29 @@ if [[ -n "${OUTPUTS:-}" ]]; then
   while IFS= read -r line; do
     line="$(trim "${line}")"
     [[ -z "${line}" ]] && continue
+    if [[ "${line}" != *:* ]]; then
+      echo "Malformed outputs line (expected 'source:destination'): ${line}" >&2
+      exit 1
+    fi
     source="$(trim "${line%%:*}")"
     destination="$(trim "${line#*:}")"
     copy "${platform_dir}/${source}" "${destination}"
   done <<< "${OUTPUTS}"
-else
+elif [[ -n "${OUTPUT:-}" ]]; then
   # Legacy single-file form. Prefer the per-platform directory (new SSOT layout); fall back
   # to the old flat generated/<platform>.* while the SSOT migration is in flight.
   mkdir -p "$(dirname "${OUTPUT}")"
   if [[ -d "${platform_dir}" ]]; then
-    cp "${platform_dir}"/* "${OUTPUT}"
+    platform_files=("${platform_dir}"/*)
+    if [[ ${#platform_files[@]} -ne 1 ]]; then
+      echo "Platform ${PLATFORM} produces ${#platform_files[@]} files; use the 'outputs' parameter instead of 'output'." >&2
+      exit 1
+    fi
+    cp "${platform_files[0]}" "${OUTPUT}"
   else
     cp "${ssot}"/generated/"${PLATFORM}".* "${OUTPUT}"
   fi
+else
+  echo "Neither 'outputs' nor 'output' is set; nothing to copy." >&2
+  exit 1
 fi

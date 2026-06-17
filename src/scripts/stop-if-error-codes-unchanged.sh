@@ -27,8 +27,13 @@ if [[ -n "${OUTPUTS:-}" ]]; then
     [[ -z "${line}" ]] && continue
     destinations+=("$(trim "${line#*:}")")
   done <<< "${OUTPUTS}"
-else
+elif [[ -n "${OUTPUT:-}" ]]; then
   destinations+=("${OUTPUT}")
+fi
+
+if [[ ${#destinations[@]} -eq 0 ]]; then
+  echo "Neither 'outputs' nor 'output' resolved to a destination path." >&2
+  exit 1
 fi
 
 if [ -z "$(git status --porcelain -- "${destinations[@]}")" ]; then
