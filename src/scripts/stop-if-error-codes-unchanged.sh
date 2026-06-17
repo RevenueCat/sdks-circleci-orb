@@ -25,6 +25,10 @@ if [[ -n "${OUTPUTS:-}" ]]; then
   while IFS= read -r line; do
     line="$(trim "${line}")"
     [[ -z "${line}" ]] && continue
+    if [[ "${line}" != *:* ]]; then
+      echo "Malformed outputs line (expected 'source:destination'): ${line}" >&2
+      exit 1
+    fi
     destinations+=("$(trim "${line#*:}")")
   done <<< "${OUTPUTS}"
 elif [[ -n "${OUTPUT:-}" ]]; then

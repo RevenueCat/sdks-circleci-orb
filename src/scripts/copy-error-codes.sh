@@ -53,7 +53,9 @@ elif [[ -n "${OUTPUT:-}" ]]; then
   # to the old flat generated/<platform>.* while the SSOT migration is in flight.
   mkdir -p "$(dirname "${OUTPUT}")"
   if [[ -d "${platform_dir}" ]]; then
+    shopt -s nullglob
     platform_files=("${platform_dir}"/*)
+    shopt -u nullglob
     if [[ ${#platform_files[@]} -ne 1 ]]; then
       echo "Platform ${PLATFORM} produces ${#platform_files[@]} files; use the 'outputs' parameter instead of 'output'." >&2
       exit 1
