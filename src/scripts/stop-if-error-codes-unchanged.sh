@@ -13,23 +13,15 @@ set -euo pipefail
 # Inputs (environment):
 #   OUTPUTS  newline-delimited `source:destination` pairs (preferred)
 #   OUTPUT   legacy single destination path (used when OUTPUTS is empty)
-trim() {
-  local value="$1"
-  value="${value#"${value%%[![:space:]]*}"}"
-  value="${value%"${value##*[![:space:]]}"}"
-  printf '%s' "${value}"
-}
-
 destinations=()
 if [[ -n "${OUTPUTS:-}" ]]; then
   while IFS= read -r line; do
-    line="$(trim "${line}")"
     [[ -z "${line}" ]] && continue
     if [[ "${line}" != *:* ]]; then
       echo "Malformed outputs line (expected 'source:destination'): ${line}" >&2
       exit 1
     fi
-    destinations+=("$(trim "${line#*:}")")
+    destinations+=("${line#*:}")
   done <<< "${OUTPUTS}"
 elif [[ -n "${OUTPUT:-}" ]]; then
   destinations+=("${OUTPUT}")

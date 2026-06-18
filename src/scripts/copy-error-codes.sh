@@ -20,13 +20,6 @@ echo "export ERROR_CODES_SHA=$(git -C ../purchases-error-codes rev-parse HEAD)" 
 ssot="../purchases-error-codes"
 platform_dir="${ssot}/generated/${PLATFORM}"
 
-trim() {
-  local value="$1"
-  value="${value#"${value%%[![:space:]]*}"}"
-  value="${value%"${value##*[![:space:]]}"}"
-  printf '%s' "${value}"
-}
-
 copy() {
   local source="$1" destination="$2"
   mkdir -p "$(dirname "${destination}")"
@@ -38,15 +31,12 @@ if [[ -n "${OUTPUTS:-}" ]]; then
   # New layout: one `source:destination` pair per line. `source` names a file under
   # generated/<platform>/; split on the first colon so destination paths are unaffected.
   while IFS= read -r line; do
-    line="$(trim "${line}")"
     [[ -z "${line}" ]] && continue
     if [[ "${line}" != *:* ]]; then
       echo "Malformed outputs line (expected 'source:destination'): ${line}" >&2
       exit 1
     fi
-    source="$(trim "${line%%:*}")"
-    destination="$(trim "${line#*:}")"
-    copy "${platform_dir}/${source}" "${destination}"
+    copy "${platform_dir}/${line%%:*}" "${line#*:}"
   done <<< "${OUTPUTS}"
 elif [[ -n "${OUTPUT:-}" ]]; then
   # Legacy single-file form. Prefer the per-platform directory (new SSOT layout); fall back
