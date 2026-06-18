@@ -9,10 +9,14 @@ parameters:
     description: "Executor to run on. Defaults to a Ruby+Node Docker image; override for native toolchains (Android/iOS)."
   platform:
     type: string
-    description: "Generator platform: android, ios, or js"
-  output:
+    description: "Generator platform: android, ios, js, kmp, flutter, or hybridCommon"
+  outputs:
     type: string
-    description: "Repo-root-relative path of the generated file to write"
+    description: >
+      Newline-delimited `source:destination` pairs, one per generated file. `source` is the
+      file name under the SSOT's generated/<platform>/ directory; `destination` is its
+      repo-root-relative path. A platform may emit one file (e.g. android, ios, js) or several
+      (e.g. kmp, flutter).
   update_api_steps:
     type: steps
     default: []
@@ -34,12 +38,12 @@ steps:
       name: Copy error codes
       environment:
         PLATFORM: << parameters.platform >>
-        OUTPUT: << parameters.output >>
+        OUTPUTS: << parameters.outputs >>
       command: <<include(scripts/copy-error-codes.sh)>>
   - run:
-      name: Stop if generated file is unchanged
+      name: Stop if generated files are unchanged
       environment:
-        OUTPUT: << parameters.output >>
+        OUTPUTS: << parameters.outputs >>
       command: <<include(scripts/stop-if-error-codes-unchanged.sh)>>
   - steps: << parameters.update_api_steps >>
   - run:
