@@ -51,3 +51,6 @@ steps:
       environment:
         COMMIT_PATHS: << parameters.commit_paths >>
       command: <<include(scripts/open-error-codes-pr.sh)>>
+  - run:
+      name: Nudge stale error-codes PR
+      command: <<include(scripts/nudge-stale-error-codes-pr.sh)>>

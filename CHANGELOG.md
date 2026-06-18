@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 - Current development changes [ to be moved to release ]
+- `update-error-codes`: nudge an `update-error-codes` PR that has stayed open for over a day with a comment mentioning `@RevenueCat/coresdk`.
 
 ## [1.0.0] - 2021-03-11
 
