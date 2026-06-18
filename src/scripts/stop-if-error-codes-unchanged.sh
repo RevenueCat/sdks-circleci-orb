@@ -1,8 +1,4 @@
 #!/usr/bin/env bash
-
-# OUTPUT and OUTPUTS are both injected via the job's `environment`; silence the
-# "OUTPUT may not be assigned, did you mean OUTPUTS" heuristic.
-# shellcheck disable=SC2153
 set -euo pipefail
 
 # Halts the job (success) when every generated file is unchanged, skipping the API dump and PR.
@@ -11,24 +7,15 @@ set -euo pipefail
 # as no-change and would wrongly halt on first adoption of a new platform.
 #
 # Inputs (environment):
-#   OUTPUTS  newline-delimited `source:destination` pairs (preferred)
-#   OUTPUT   legacy single destination path (used when OUTPUTS is empty)
+#   OUTPUTS  newline-delimited `source:destination` pairs
 destinations=()
-if [[ -n "${OUTPUTS:-}" ]]; then
-  while IFS= read -r line; do
-    [[ -z "${line}" ]] && continue
-    if [[ "${line}" != *:* ]]; then
-      echo "Malformed outputs line (expected 'source:destination'): ${line}" >&2
-      exit 1
-    fi
-    destinations+=("${line#*:}")
-  done <<< "${OUTPUTS}"
-elif [[ -n "${OUTPUT:-}" ]]; then
-  destinations+=("${OUTPUT}")
-fi
+while IFS= read -r line; do
+  [[ -z "${line}" ]] && continue
+  destinations+=("${line#*:}")
+done <<< "${OUTPUTS}"
 
 if [[ ${#destinations[@]} -eq 0 ]]; then
-  echo "Neither 'outputs' nor 'output' resolved to a destination path." >&2
+  echo "No destination paths resolved from 'outputs'." >&2
   exit 1
 fi
 

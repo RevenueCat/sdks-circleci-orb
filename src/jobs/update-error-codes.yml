@@ -12,18 +12,11 @@ parameters:
     description: "Generator platform: android, ios, js, kmp, flutter, or hybridCommon"
   outputs:
     type: string
-    default: ""
     description: >
       Newline-delimited `source:destination` pairs, one per generated file. `source` is the
       file name under the SSOT's generated/<platform>/ directory; `destination` is its
-      repo-root-relative path. Use this for platforms that emit more than one file (e.g. kmp,
-      flutter). When empty, falls back to the single `output` parameter.
-  output:
-    type: string
-    default: ""
-    description: >
-      Repo-root-relative path of the generated file to write. Legacy single-file form; prefer
-      `outputs`. Ignored when `outputs` is set.
+      repo-root-relative path. A platform may emit one file (e.g. android, ios, js) or several
+      (e.g. kmp, flutter).
   update_api_steps:
     type: steps
     default: []
@@ -46,13 +39,11 @@ steps:
       environment:
         PLATFORM: << parameters.platform >>
         OUTPUTS: << parameters.outputs >>
-        OUTPUT: << parameters.output >>
       command: <<include(scripts/copy-error-codes.sh)>>
   - run:
       name: Stop if generated files are unchanged
       environment:
         OUTPUTS: << parameters.outputs >>
-        OUTPUT: << parameters.output >>
       command: <<include(scripts/stop-if-error-codes-unchanged.sh)>>
   - steps: << parameters.update_api_steps >>
   - run:

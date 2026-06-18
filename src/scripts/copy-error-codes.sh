@@ -1,8 +1,4 @@
 #!/usr/bin/env bash
-
-# OUTPUT and OUTPUTS are both injected via the job's `environment`; silence the
-# "OUTPUT may not be assigned, did you mean OUTPUTS" heuristic.
-# shellcheck disable=SC2153
 set -euo pipefail
 
 # Clones the error-codes SSOT repo and copies this platform's committed generated files.
@@ -11,50 +7,23 @@ set -euo pipefail
 #
 # Inputs (environment):
 #   PLATFORM  android|ios|js|kmp|flutter|hybridCommon
-#   OUTPUTS   newline-delimited `source:destination` pairs (preferred, supports >1 file)
-#   OUTPUT    legacy single destination path (used when OUTPUTS is empty)
+#   OUTPUTS   newline-delimited `source:destination` pairs, one per generated file
 git clone --depth 1 git@github.com:RevenueCat/purchases-error-codes.git ../purchases-error-codes
 
 echo "export ERROR_CODES_SHA=$(git -C ../purchases-error-codes rev-parse HEAD)" >> "${BASH_ENV}"
 
-ssot="../purchases-error-codes"
-platform_dir="${ssot}/generated/${PLATFORM}"
+platform_dir="../purchases-error-codes/generated/${PLATFORM}"
 
-copy() {
-  local source="$1" destination="$2"
-  mkdir -p "$(dirname "${destination}")"
-  cp "${source}" "${destination}"
-  echo "Copied ${source} -> ${destination}"
-}
-
-if [[ -n "${OUTPUTS:-}" ]]; then
-  # New layout: one `source:destination` pair per line. `source` names a file under
-  # generated/<platform>/; split on the first colon so destination paths are unaffected.
-  while IFS= read -r line; do
-    [[ -z "${line}" ]] && continue
-    if [[ "${line}" != *:* ]]; then
-      echo "Malformed outputs line (expected 'source:destination'): ${line}" >&2
-      exit 1
-    fi
-    copy "${platform_dir}/${line%%:*}" "${line#*:}"
-  done <<< "${OUTPUTS}"
-elif [[ -n "${OUTPUT:-}" ]]; then
-  # Legacy single-file form. Prefer the per-platform directory (new SSOT layout); fall back
-  # to the old flat generated/<platform>.* while the SSOT migration is in flight.
-  mkdir -p "$(dirname "${OUTPUT}")"
-  if [[ -d "${platform_dir}" ]]; then
-    shopt -s nullglob
-    platform_files=("${platform_dir}"/*)
-    shopt -u nullglob
-    if [[ ${#platform_files[@]} -ne 1 ]]; then
-      echo "Platform ${PLATFORM} produces ${#platform_files[@]} files; use the 'outputs' parameter instead of 'output'." >&2
-      exit 1
-    fi
-    cp "${platform_files[0]}" "${OUTPUT}"
-  else
-    cp "${ssot}"/generated/"${PLATFORM}".* "${OUTPUT}"
+# One `source:destination` pair per line. `source` names a file under generated/<platform>/;
+# split on the first colon so destination paths are unaffected.
+while IFS= read -r line; do
+  [[ -z "${line}" ]] && continue
+  if [[ "${line}" != *:* ]]; then
+    echo "Malformed outputs line (expected 'source:destination'): ${line}" >&2
+    exit 1
   fi
-else
-  echo "Neither 'outputs' nor 'output' is set; nothing to copy." >&2
-  exit 1
-fi
+  destination="${line#*:}"
+  mkdir -p "$(dirname "${destination}")"
+  cp "${platform_dir}/${line%%:*}" "${destination}"
+  echo "Copied ${line%%:*} -> ${destination}"
+done <<< "${OUTPUTS}"
