@@ -1,5 +1,5 @@
 [tools]
-tuist = "4.200.1"
+tuist = "4.200.5"
 swiftlint = "0.63.3"
 xcodes = "latest"
 xcbeautify = "3.2.1"
