@@ -9,7 +9,11 @@ fi
 # Consumer postinstall hooks (e.g. link-jdks) require experimental mode.
 mise settings set experimental true
 
-mise install
+if [ "${MISE_INSTALL_LOCKED:-true}" = "true" ]; then
+    mise install --locked
+else
+    mise install
+fi
 
 if java_home="$(mise where java 2>/dev/null)"; then
     echo "export JAVA_HOME=\"$java_home\"" >> "$BASH_ENV"

@@ -1,8 +1,18 @@
 description: >
   Installs mise and all tools declared in the repository's mise.toml (including
   postinstall hooks). Sets JAVA_HOME when java is configured.
+parameters:
+  locked:
+    type: boolean
+    default: true
+    description: >
+      When true, runs `mise install --locked` so CI uses the committed mise.lock
+      and does not rewrite it. Requires a mise.lock with URLs for the current
+      platform. Set to false for repos that have not adopted lockfiles yet.
 steps:
   - install-mise
   - run:
       name: Install mise tools
       command: <<include(scripts/install-mise-tools.sh)>>
+      environment:
+        MISE_INSTALL_LOCKED: << parameters.locked >>
