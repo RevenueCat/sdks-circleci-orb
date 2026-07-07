@@ -1,0 +1,8 @@
+description: >
+  Installs mise and all tools declared in the repository's mise.toml (including
+  postinstall hooks). Sets JAVA_HOME when java is configured.
+steps:
+  - install-mise
+  - run:
+      name: Install mise tools
+      command: <<include(scripts/install-mise-tools.sh)>>
