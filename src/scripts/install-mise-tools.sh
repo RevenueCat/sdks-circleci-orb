@@ -8,6 +8,9 @@ if [ ! -f "mise.toml" ]; then
     exit 1
 fi
 
+# Required for [hooks] postinstall tasks (e.g. link-jdks) in consumer mise.toml files.
+mise settings set experimental true
+
 mise install
 
 export PATH="$HOME/.local/share/mise/shims:$PATH"
