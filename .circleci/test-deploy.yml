@@ -155,12 +155,13 @@ jobs:
       - <orb-name>/install-mise-tools
       - run:
           name: Verify Java from mise.toml
-          # Intentionally does not re-export PATH or JAVA_HOME: this job verifies
-          # that install-mise-tools persists them to BASH_ENV for subsequent steps.
+          # Intentionally does not re-export PATH or JAVA_HOME: verifies install-mise-tools
+          # persisted them to BASH_ENV (install-mise persists shims; this step sets JAVA_HOME).
           command: |
+            test -f /tmp/mise-tools-postinstall-test
             java -version
             test -n "$JAVA_HOME"
-            "$JAVA_HOME/bin/java" -version
+            test "$JAVA_HOME" = "$(mise where java)"
 
   test-install-xcodes:
     macos:
