@@ -1,7 +1,7 @@
 description: >
   Installs a pinned version of the mise tool version manager, verifying the
   downloaded archive against a known SHA256. Used as a prerequisite step by
-  install-tuist and install-swiftlint.
+  install-mise-tools, install-tuist, and install-swiftlint.
 steps:
   - run:
       name: Install mise

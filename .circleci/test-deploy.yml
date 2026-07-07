@@ -2,6 +2,7 @@ version: 2.1
 orbs:
   <orb-name>: revenuecat/sdks-common-config@dev:<<pipeline.git.revision>>
   orb-tools: circleci/orb-tools@11.1
+  android: circleci/android@3.1.0
 
 filters: &filters
   tags:
@@ -140,6 +141,27 @@ jobs:
             export PATH="$HOME/.local/share/mise/shims:$PATH"
             swiftlint version
 
+  test-install-mise-tools:
+    executor:
+      name: android/android_machine
+      resource_class: large
+      tag: default
+    shell: /bin/bash --login -o pipefail
+    steps:
+      - checkout
+      - run:
+          name: Copy Java test fixture
+          command: cp test-fixtures/mise-java.toml mise.toml
+      - <orb-name>/install-mise-tools
+      - run:
+          name: Verify Java from mise.toml
+          # Intentionally does not re-export PATH or JAVA_HOME: this job verifies
+          # that install-mise-tools persists them to BASH_ENV for subsequent steps.
+          command: |
+            java -version
+            test -n "$JAVA_HOME"
+            "$JAVA_HOME/bin/java" -version
+
   test-install-xcodes:
     macos:
       xcode: 26.3.0
@@ -209,6 +231,10 @@ workflows:
           requires:
             - orb-tools/pack
           filters: *filters
+      - test-install-mise-tools:
+          requires:
+            - orb-tools/pack
+          filters: *filters
       - test-install-xcodes:
           requires:
             - orb-tools/pack
@@ -242,6 +268,7 @@ workflows:
             - test-install-public-api-diff
             - test-install-maestro
             - test-install-swiftlint
+            - test-install-mise-tools
             - test-install-xcodes
             - test-install-xcbeautify
             - test-install-xcbeautify-from-mise-toml
