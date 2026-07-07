@@ -9,7 +9,7 @@ fi
 # Consumer postinstall hooks (e.g. link-jdks) require experimental mode.
 mise settings set experimental true
 
-if [ "${MISE_INSTALL_LOCKED:-true}" = "true" ]; then
+if [ "${MISE_INSTALL_LOCKED:-true}" != "false" ]; then
     mise install --locked
 else
     mise install
