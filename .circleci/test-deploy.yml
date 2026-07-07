@@ -151,7 +151,9 @@ jobs:
       - checkout
       - run:
           name: Copy Java test fixture
-          command: cp test-fixtures/mise-java.toml mise.toml
+          command: |
+            cp test-fixtures/mise-java.toml mise.toml
+            cp test-fixtures/mise-java.lock mise.lock
       - <orb-name>/install-mise-tools
       - run:
           name: Verify Java from mise.toml
