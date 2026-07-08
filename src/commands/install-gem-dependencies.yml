@@ -10,14 +10,25 @@ parameters:
     type: string
     default: .
 steps:
+  - run:
+      name: Capture Ruby version for the gem cache key
+      # Cache keys can't reference the Ruby version directly, so we checksum a file
+      # containing it (same approach as the Kotlin/Native cache). This keeps gem caches
+      # separated per Ruby version and architecture, so jobs running on different Rubies
+      # don't collide on a single key (a cache key is immutable, so the first Ruby to
+      # populate it would otherwise force every other Ruby to reinstall on every run).
+      command: ruby --version > ~/.ruby_version
   - restore_cache:
       keys:
-        - <<parameters.cache-version>>-<<parameters.cache-prefix>>-gem-cache-{{ checksum "<< parameters.working_directory >>/Gemfile.lock" }}
+        - <<parameters.cache-version>>-<<parameters.cache-prefix>>-gem-cache-{{ arch }}-{{ checksum "~/.ruby_version" }}-{{ checksum "<< parameters.working_directory >>/Gemfile.lock" }}
+        # Fallback: reuse the most recent bundle for this Ruby/arch and install only the
+        # delta when Gemfile.lock changed (bundle config clean=true prunes stale gems).
+        - <<parameters.cache-version>>-<<parameters.cache-prefix>>-gem-cache-{{ arch }}-{{ checksum "~/.ruby_version" }}-
   - run:
       name: Bundle install
       working_directory: << parameters.working_directory >>
       command: <<include(scripts/bundle-install.sh)>>
   - save_cache:
-      key: <<parameters.cache-version>>-<<parameters.cache-prefix>>-gem-cache-{{ checksum "<< parameters.working_directory >>/Gemfile.lock" }}
+      key: <<parameters.cache-version>>-<<parameters.cache-prefix>>-gem-cache-{{ arch }}-{{ checksum "~/.ruby_version" }}-{{ checksum "<< parameters.working_directory >>/Gemfile.lock" }}
       paths:
         - vendor/bundle
