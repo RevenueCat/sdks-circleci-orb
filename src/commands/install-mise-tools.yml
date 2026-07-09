@@ -1,6 +1,6 @@
 description: >
-  Installs mise and all tools declared in the repository's mise.toml (including
-  postinstall hooks). Sets JAVA_HOME when java is configured.
+  Installs mise and tools declared in the repository's mise.toml (including
+  postinstall hooks when present). Sets JAVA_HOME when java is configured.
 parameters:
   locked:
     type: boolean
@@ -9,6 +9,18 @@ parameters:
       When true, runs `mise install --locked` so CI uses the committed mise.lock
       and does not rewrite it. Requires a mise.lock with URLs for the current
       platform. Set to false for repos that have not adopted lockfiles yet.
+  tools:
+    type: string
+    default: ""
+    description: >
+      Space-separated tool names to install (e.g. "java" or "node yarn").
+      When empty, installs all tools declared in mise.toml.
+  project_root:
+    type: string
+    default: ""
+    description: >
+      Directory containing mise.toml. When set, cd there before installing.
+      Use when the job working_directory is a subdirectory of the repo.
 steps:
   - install-mise
   - run:
@@ -16,3 +28,5 @@ steps:
       command: <<include(scripts/install-mise-tools.sh)>>
       environment:
         MISE_INSTALL_LOCKED: << parameters.locked >>
+        MISE_INSTALL_TOOLS: << parameters.tools >>
+        MISE_PROJECT_ROOT: << parameters.project_root >>

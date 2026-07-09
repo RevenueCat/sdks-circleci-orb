@@ -165,6 +165,28 @@ jobs:
             test -n "$JAVA_HOME"
             test "$JAVA_HOME" = "$(mise where java)"
 
+  test-install-mise-tools-selective:
+    executor:
+      name: android/android_machine
+      resource-class: large
+      tag: default
+    shell: /bin/bash --login -o pipefail
+    steps:
+      - checkout
+      - run:
+          name: Copy Java test fixture
+          command: |
+            cp test-fixtures/mise-java.toml mise.toml
+            cp test-fixtures/mise-java.lock mise.lock
+      - <orb-name>/install-mise-tools:
+          tools: java
+      - run:
+          name: Verify selective Java install
+          command: |
+            test -f /tmp/mise-tools-postinstall-test
+            java -version
+            test -n "$JAVA_HOME"
+
   test-install-xcodes:
     macos:
       xcode: 26.3.0
@@ -238,6 +260,10 @@ workflows:
           requires:
             - orb-tools/pack
           filters: *filters
+      - test-install-mise-tools-selective:
+          requires:
+            - orb-tools/pack
+          filters: *filters
       - test-install-xcodes:
           requires:
             - orb-tools/pack
@@ -272,6 +298,7 @@ workflows:
             - test-install-maestro
             - test-install-swiftlint
             - test-install-mise-tools
+            - test-install-mise-tools-selective
             - test-install-xcodes
             - test-install-xcbeautify
             - test-install-xcbeautify-from-mise-toml
