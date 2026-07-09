@@ -168,7 +168,7 @@ jobs:
   test-install-mise-tools-selective:
     executor:
       name: android/android_machine
-      resource-class: large
+      resource_class: large
       tag: default
     shell: /bin/bash --login -o pipefail
     steps:
