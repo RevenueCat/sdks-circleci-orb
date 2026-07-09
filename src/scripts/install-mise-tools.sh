@@ -16,9 +16,10 @@ if [ "${MISE_INSTALL_LOCKED:-true}" != "false" ]; then
 fi
 
 if [ -n "${MISE_TOOLS:-}" ]; then
-    normalized=$(printf '%s' "$MISE_TOOLS" | tr '\n' ' ')
-    read -ra selected_tools <<< "$normalized"
+    IFS=',' read -ra selected_tools <<< "$MISE_TOOLS"
     for tool in "${selected_tools[@]}"; do
+        tool="${tool#"${tool%%[![:space:]]*}"}"
+        tool="${tool%"${tool##*[![:space:]]}"}"
         [ -n "$tool" ] || continue
         install_args+=("$tool")
     done
