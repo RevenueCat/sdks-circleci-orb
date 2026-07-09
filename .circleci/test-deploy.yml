@@ -180,8 +180,7 @@ jobs:
             cp test-fixtures/mise-java.lock mise.lock
       - <orb-name>/install-mise-tools:
           hooks: true
-          tools:
-            - <orb-name>/mise-java
+          tools: java
       - run:
           name: Verify selective Java install
           command: |

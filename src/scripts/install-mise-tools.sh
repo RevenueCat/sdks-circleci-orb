@@ -10,18 +10,18 @@ if [ ! -f "mise.toml" ]; then
     exit 1
 fi
 
-selected_tools_file="/tmp/mise-selected-tools.list"
-
 install_args=()
 if [ "${MISE_INSTALL_LOCKED:-true}" != "false" ]; then
     install_args+=(--locked)
 fi
 
-if [ -f "$selected_tools_file" ] && [ -s "$selected_tools_file" ]; then
-    while IFS= read -r tool || [ -n "$tool" ]; do
+if [ -n "${MISE_TOOLS:-}" ]; then
+    normalized=$(printf '%s' "$MISE_TOOLS" | tr '\n' ' ')
+    read -ra selected_tools <<< "$normalized"
+    for tool in "${selected_tools[@]}"; do
         [ -n "$tool" ] || continue
         install_args+=("$tool")
-    done < "$selected_tools_file"
+    done
 fi
 
 mise install "${install_args[@]}"

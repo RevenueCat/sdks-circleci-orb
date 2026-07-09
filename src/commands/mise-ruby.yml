@@ -1,4 +1,0 @@
-description: Select ruby for install-mise-tools.tools
-steps:
-  - mise-tool:
-      tool: ruby

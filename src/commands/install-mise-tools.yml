@@ -1,7 +1,8 @@
 description: >
   Installs mise and tools declared in the repository's mise.toml. Sets JAVA_HOME
-  when java is configured. Pass tools as a list of selector steps (e.g.
-  revenuecat/mise-java, revenuecat/mise-node, or   revenuecat/mise-tool with tool). When tools is empty, installs all tools from mise.toml.
+  when java is configured. Pass tools as space-separated mise tool names from
+  the consumer's mise.toml (e.g. "node yarn"). When tools is empty, installs
+  all tools from mise.toml.
 parameters:
   locked:
     type: boolean
@@ -11,12 +12,12 @@ parameters:
       and does not rewrite it. Requires a mise.lock with URLs for the current
       platform. Set to false for repos that have not adopted lockfiles yet.
   tools:
-    type: steps
-    default: []
+    type: string
+    default: ""
     description: >
-      Tool selectors to install. List entries such as revenuecat/mise-java or
-      revenuecat/mise-tool with name. Omit or pass an empty list to install all
-      tools declared in mise.toml.
+      Space- or newline-separated mise tool names to install (e.g. "java" or
+      "node yarn"). Names must match entries in the consumer's mise.toml. Omit
+      or leave empty to install all tools declared in mise.toml.
   hooks:
     type: boolean
     default: false
@@ -30,9 +31,6 @@ parameters:
       Directory containing mise.toml. When set, cd there before installing.
       Use when the job working_directory is a subdirectory of the repo.
 steps:
-  - run:
-      name: Clear selected mise tools
-      command: rm -f /tmp/mise-selected-tools.list
   - install-mise
   - when:
       condition: << parameters.hooks >>
@@ -40,10 +38,10 @@ steps:
         - run:
             name: Enable mise experimental for hooks
             command: mise settings set experimental true
-  - steps: << parameters.tools >>
   - run:
       name: Install mise tools
       command: <<include(scripts/install-mise-tools.sh)>>
       environment:
         MISE_INSTALL_LOCKED: << parameters.locked >>
         MISE_PROJECT_ROOT: << parameters.project_root >>
+        MISE_TOOLS: << parameters.tools >>
