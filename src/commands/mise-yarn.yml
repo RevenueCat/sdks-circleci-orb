@@ -1,0 +1,4 @@
+description: Select yarn for install-mise-tools.tools
+steps:
+  - mise-tool:
+      tool: yarn

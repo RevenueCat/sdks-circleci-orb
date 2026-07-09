@@ -10,19 +10,18 @@ if [ ! -f "mise.toml" ]; then
     exit 1
 fi
 
-# Project-level [hooks] postinstall still requires experimental mode; it no-ops without it.
-if grep -q '^\[hooks\]' mise.toml; then
-    mise settings set experimental true
-fi
+selected_tools_file="/tmp/mise-selected-tools.list"
 
 install_args=()
 if [ "${MISE_INSTALL_LOCKED:-true}" != "false" ]; then
     install_args+=(--locked)
 fi
 
-if [ -n "${MISE_INSTALL_TOOLS:-}" ]; then
-    # shellcheck disable=SC2206
-    install_args+=(${MISE_INSTALL_TOOLS})
+if [ -f "$selected_tools_file" ] && [ -s "$selected_tools_file" ]; then
+    while IFS= read -r tool || [ -n "$tool" ]; do
+        [ -n "$tool" ] || continue
+        install_args+=("$tool")
+    done < "$selected_tools_file"
 fi
 
 mise install "${install_args[@]}"
