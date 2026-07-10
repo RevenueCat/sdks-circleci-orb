@@ -1,19 +1,31 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+if [ -n "${MISE_PROJECT_ROOT:-}" ]; then
+    cd "${MISE_PROJECT_ROOT}"
+fi
+
 if [ ! -f "mise.toml" ]; then
-    echo "❌ mise.toml not found. Please create a mise.toml file with tool versions."
+    echo "❌ mise.toml not found at $(pwd). Please create a mise.toml file with tool versions."
     exit 1
 fi
 
-# Consumer postinstall hooks (e.g. link-jdks) require experimental mode.
-mise settings set experimental true
-
+install_args=()
 if [ "${MISE_INSTALL_LOCKED:-true}" != "false" ]; then
-    mise install --locked
-else
-    mise install
+    install_args+=(--locked)
 fi
+
+if [ -n "${MISE_TOOLS:-}" ]; then
+    IFS=',' read -ra selected_tools <<< "$MISE_TOOLS"
+    for tool in "${selected_tools[@]}"; do
+        tool="${tool#"${tool%%[![:space:]]*}"}"
+        tool="${tool%"${tool##*[![:space:]]}"}"
+        [ -n "$tool" ] || continue
+        install_args+=("$tool")
+    done
+fi
+
+mise install "${install_args[@]}"
 
 if java_home="$(mise where java 2>/dev/null)"; then
     echo "export JAVA_HOME=\"$java_home\"" >> "$BASH_ENV"
