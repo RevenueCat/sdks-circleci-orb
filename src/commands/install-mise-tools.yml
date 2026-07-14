@@ -22,8 +22,10 @@ parameters:
     type: boolean
     default: false
     description: >
-      When true, enables mise experimental mode so project-level [hooks]
-      postinstall in mise.toml runs during install.
+      When false (default), suppresses mise project-level [hooks] (e.g. postinstall)
+      via MISE_NO_HOOKS: mise runs hooks on every `mise install` regardless of which
+      tools were requested, so most callers don't want them firing on every call.
+      Set to true to allow hooks to run.
   project_root:
     type: string
     default: ""
@@ -32,12 +34,6 @@ parameters:
       Use when the job working_directory is a subdirectory of the repo.
 steps:
   - install-mise
-  - when:
-      condition: << parameters.hooks >>
-      steps:
-        - run:
-            name: Enable mise experimental for hooks
-            command: mise settings set experimental true
   - run:
       name: Install mise tools
       command: <<include(scripts/install-mise-tools.sh)>>
@@ -45,3 +41,4 @@ steps:
         MISE_INSTALL_LOCKED: << parameters.locked >>
         MISE_PROJECT_ROOT: << parameters.project_root >>
         MISE_TOOLS: << parameters.tools >>
+        MISE_HOOKS: << parameters.hooks >>

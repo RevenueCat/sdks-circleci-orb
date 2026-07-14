@@ -160,7 +160,7 @@ jobs:
           # Intentionally does not re-export PATH or JAVA_HOME: verifies install-mise-tools
           # persisted them to BASH_ENV (install-mise persists shims; this step sets JAVA_HOME).
           command: |
-            test -f /tmp/mise-tools-postinstall-test
+            test ! -f /tmp/mise-tools-postinstall-test
             java -version
             test -n "$JAVA_HOME"
             test "$JAVA_HOME" = "$(mise where java)"
