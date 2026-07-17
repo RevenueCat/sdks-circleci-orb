@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- `automatic-bump` and `danger`: bump default `ruby_version` from `3.1.2` to `3.2.0`, matching the other release jobs. The 3.1.2 default no longer satisfies gems that require Ruby >= 3.2, causing Bundler to backtrack to unbuildable gem versions (e.g. `nokogiri 1.6.8.1`). Consumers can still override `ruby_version` explicitly.
 - `install-gem-dependencies`: include the architecture and Ruby version in the gem cache key so jobs running on different Rubies no longer collide on a single immutable key (which previously forced repeated `bundle install` reinstalls). Also add a partial-restore fallback key so a `Gemfile.lock` change reuses the previous bundle and installs only the delta.
 - `install-mise-tools`: installs mise and all tools from the repository's `mise.toml`, including postinstall hooks; sets `JAVA_HOME` when java is configured.
 - `install-mise-tools`: `locked` parameter (default `true`) runs `mise install --locked` so CI does not rewrite `mise.lock`.
