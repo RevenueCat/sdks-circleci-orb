@@ -10,6 +10,14 @@ if [ ! -f "mise.toml" ]; then
     exit 1
 fi
 
+# mise runs project [hooks] (e.g. postinstall) on every `mise install`, regardless of
+# which tools were requested. Suppress them unless explicitly opted in: most callers
+# don't need them, and paying for e.g. a postinstall task meant for one tool on every
+# call (including single-tool calls via MISE_TOOLS) is wasteful and can hang CI.
+if [ "${MISE_HOOKS:-false}" != "true" ]; then
+    export MISE_NO_HOOKS=1
+fi
+
 install_args=()
 if [ "${MISE_INSTALL_LOCKED:-true}" != "false" ]; then
     install_args+=(--locked)
