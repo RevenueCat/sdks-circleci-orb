@@ -164,6 +164,18 @@ jobs:
             java -version
             test -n "$JAVA_HOME"
             test "$JAVA_HOME" = "$(mise where java)"
+      - run:
+          name: Verify cache key inputs and pruned downloads
+          command: |
+            test -f ~/.mise_version
+            test "$(cat ~/.mise_version)" = "$(mise --version)"
+            leftover="$(find "$HOME/.local/share/mise/downloads" -type f 2>/dev/null)"
+            if [ -n "$leftover" ]; then
+                echo "ERROR: downloads/ still holds files; they would be cached" >&2
+                echo "$leftover" >&2
+                exit 1
+            fi
+            echo "OK: cache key inputs present, downloads pruned"
 
   test-install-mise-tools-selective:
     executor:
@@ -178,6 +190,8 @@ jobs:
           command: |
             cp test-fixtures/mise-java.toml mise.toml
             cp test-fixtures/mise-java.lock mise.lock
+      # Same fixture as test-install-mise-tools, different tools: the two must
+      # not collide on one immutable cache key.
       - <orb-name>/install-mise-tools:
           hooks: true
           tools: java
