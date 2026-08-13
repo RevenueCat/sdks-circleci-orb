@@ -2,7 +2,8 @@ description: >
   Installs mise and tools declared in the repository's mise.toml. Sets JAVA_HOME
   when java is configured. Pass tools as comma-separated mise tool IDs from the
   consumer's mise.toml (e.g. "node,yarn"). When tools is empty, installs all
-  tools from mise.toml.
+  tools from mise.toml. Caches the mise data directory between runs so warm jobs
+  do not download toolchains from their upstream suppliers.
 parameters:
   locked:
     type: boolean
@@ -17,7 +18,8 @@ parameters:
     description: >
       Comma-separated mise tool IDs to install (e.g. "java" or "node,yarn").
       Names must match entries in the consumer's mise.toml. Omit or leave empty
-      to install all tools declared in mise.toml.
+      to install all tools declared in mise.toml. Must not contain spaces: the
+      install script tolerates them but the cache key is used verbatim.
   hooks:
     type: boolean
     default: false
@@ -28,12 +30,35 @@ parameters:
       Set to true to allow hooks to run.
   project_root:
     type: string
-    default: ""
+    default: "."
     description: >
-      Directory containing mise.toml. When set, cd there before installing.
-      Use when the job working_directory is a subdirectory of the repo.
+      Directory containing mise.toml. cd there before installing. Use when the
+      job working_directory is a subdirectory of the repo.
+  cache:
+    type: boolean
+    default: true
+    description: >
+      Cache ~/.local/share/mise keyed on the platform, mise version, tool
+      selection and both mise config files. Ignored when locked is false, since
+      without a lockfile the declared versions may float and the key would pin a
+      stale resolution. Set to false for toolsets large enough that restoring
+      them costs more than downloading them.
+  cache_prefix:
+    type: string
+    default: v1
+    description: >
+      Used to form part of the cache key. Bump to invalidate every mise cache.
 steps:
   - install-mise
+  - when:
+      condition:
+        and:
+          - << parameters.cache >>
+          - << parameters.locked >>
+      steps:
+        - restore_cache:
+            keys:
+              - &cache_key <<parameters.cache_prefix>>-mise-{{ arch }}-{{ checksum "~/.mise_version" }}-<<parameters.tools>>-{{ checksum "<< parameters.project_root >>/mise.toml" }}-{{ checksum "<< parameters.project_root >>/mise.lock" }}
   - run:
       name: Install mise tools
       command: <<include(scripts/install-mise-tools.sh)>>
@@ -42,3 +67,20 @@ steps:
         MISE_PROJECT_ROOT: << parameters.project_root >>
         MISE_TOOLS: << parameters.tools >>
         MISE_HOOKS: << parameters.hooks >>
+  - when:
+      condition:
+        and:
+          - << parameters.cache >>
+          - << parameters.locked >>
+      steps:
+        # mise documents downloads/ as a debugging aid, not a download cache, so
+        # nothing reads these back: https://mise.jdx.dev/configuration/settings.html
+        - run:
+            name: Prune mise downloads before caching
+            command: rm -rf "$HOME/.local/share/mise/downloads"/*
+        - save_cache:
+            key: *cache_key
+            paths:
+              # save_cache does not expand environment variables, so a consumer
+              # overriding MISE_DATA_DIR or XDG_DATA_HOME is not supported here.
+              - ~/.local/share/mise

@@ -72,3 +72,6 @@ export PATH="$HOME/.local/share/mise/shims:$PATH"
 # Persist PATH changes to BASH_ENV so mise and its shims are available in
 # subsequent CircleCI run steps (each step starts a fresh shell).
 echo "export PATH=\"\$HOME/.local/bin:\$HOME/.local/share/mise/shims:\$PATH\"" >> "$BASH_ENV"
+
+# CircleCI cache keys can checksum a file but not a command's output.
+mise --version > "$HOME/.mise_version"
