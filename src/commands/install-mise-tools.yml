@@ -38,8 +38,9 @@ parameters:
     type: boolean
     default: true
     description: >
-      Cache ~/.local/share/mise keyed on the platform, mise version, tool
-      selection and both mise config files. Ignored when locked is false, since
+      Cache ~/.local/share/mise keyed on the platform (including its OS version),
+      mise version, tool selection and both mise config files. Ignored when
+      locked is false, since
       without a lockfile the declared versions may float and the key would pin a
       stale resolution. Set to false for toolsets large enough that restoring
       them costs more than downloading them.
@@ -58,7 +59,7 @@ steps:
       steps:
         - restore_cache:
             keys:
-              - &cache_key <<parameters.cache_prefix>>-mise-{{ arch }}-{{ checksum "~/.mise_version" }}-<<parameters.tools>>-{{ checksum "<< parameters.project_root >>/mise.toml" }}-{{ checksum "<< parameters.project_root >>/mise.lock" }}
+              - &cache_key <<parameters.cache_prefix>>-mise-{{ arch }}-{{ checksum "~/.mise_platform" }}-{{ checksum "~/.mise_version" }}-<<parameters.tools>>-{{ checksum "<< parameters.project_root >>/mise.toml" }}-{{ checksum "<< parameters.project_root >>/mise.lock" }}
   - run:
       name: Install mise tools
       command: <<include(scripts/install-mise-tools.sh)>>

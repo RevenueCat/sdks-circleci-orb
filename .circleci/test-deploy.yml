@@ -169,6 +169,14 @@ jobs:
           command: |
             test -f ~/.mise_version
             test "$(cat ~/.mise_version)" = "$(mise --version)"
+            # Keyed on the OS version because native binaries link against it. Asserted
+            # non-empty and free of the "unknown" fallback, which would silently key
+            # every OS version onto one entry: the bug this guards against.
+            test -s ~/.mise_platform
+            if grep -q "unknown" ~/.mise_platform; then
+                echo "ERROR: OS version undetected ($(cat ~/.mise_platform)); every OS version would share one key" >&2
+                exit 1
+            fi
             leftover="$(find "$HOME/.local/share/mise/downloads" -type f 2>/dev/null)"
             if [ -n "$leftover" ]; then
                 echo "ERROR: downloads/ still holds files; they would be cached" >&2

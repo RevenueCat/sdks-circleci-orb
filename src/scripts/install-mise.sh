@@ -75,3 +75,21 @@ echo "export PATH=\"\$HOME/.local/bin:\$HOME/.local/share/mise/shims:\$PATH\"" >
 
 # CircleCI cache keys can checksum a file but not a command's output.
 mise --version > "$HOME/.mise_version"
+
+# CircleCI's `arch` template gives the OS and CPU but not the OS version, and one
+# fleet can span several: purchases-ios runs macOS 13.2, 15.3 and 26.3 side by side.
+# The cached toolchain holds native binaries linked against the OS they were built
+# on, so a Ruby built under 15.3 and restored onto 13.2 leaves its gems failing to
+# dlopen. Only the major version is recorded, since a minor bump does not move that
+# boundary and keying on it would miss the cache for no gain.
+if [ -r /etc/os-release ]; then
+    # Linux reads the distro release because a container's kernel belongs to the
+    # host, so `uname -r` would describe a machine the cache has nothing to do with.
+    # shellcheck disable=SC1091
+    os_release="$(. /etc/os-release && echo "${ID:-linux}-${VERSION_ID:-unknown}")"
+else
+    # macOS has no /etc/os-release. Its kernel major is the token native builds bake
+    # in (darwin24, darwin25) and it moves once per macOS release.
+    os_release="$(uname -s)-$(uname -r | cut -d. -f1)"
+fi
+echo "$os_release" > "$HOME/.mise_platform"
