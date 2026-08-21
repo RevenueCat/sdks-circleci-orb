@@ -169,7 +169,7 @@ jobs:
           command: |
             test -f ~/.mise_version
             test "$(cat ~/.mise_version)" = "$(mise --version)"
-            # Keyed on the OS version because native extensions bind to it. Asserted
+            # Keyed on the OS version because native binaries link against it. Asserted
             # non-empty and free of the "unknown" fallback, which would silently key
             # every OS version onto one entry: the bug this guards against.
             test -s ~/.mise_platform
