@@ -59,9 +59,6 @@ steps:
       steps:
         - restore_cache:
             keys:
-              # ~/.mise_platform carries the OS version, which `arch` omits. Without it a
-              # toolchain built on one macOS executor restores onto another whose native
-              # extension paths disagree. See install-mise.sh for why.
               - &cache_key <<parameters.cache_prefix>>-mise-{{ arch }}-{{ checksum "~/.mise_platform" }}-{{ checksum "~/.mise_version" }}-<<parameters.tools>>-{{ checksum "<< parameters.project_root >>/mise.toml" }}-{{ checksum "<< parameters.project_root >>/mise.lock" }}
   - run:
       name: Install mise tools
