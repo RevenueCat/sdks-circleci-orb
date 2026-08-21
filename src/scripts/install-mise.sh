@@ -75,3 +75,28 @@ echo "export PATH=\"\$HOME/.local/bin:\$HOME/.local/share/mise/shims:\$PATH\"" >
 
 # CircleCI cache keys can checksum a file but not a command's output.
 mise --version > "$HOME/.mise_version"
+
+# CircleCI's `arch` template gives the OS and CPU but not the OS version, and macOS
+# executors differ by Xcode image (e.g. 15.3 alongside 26.3). Native extensions bind
+# to the OS: a Ruby built under macOS 15 reports arch arm64-darwin24, so gems built
+# against it are invisible to the same Ruby restored onto macOS 26 (arm64-darwin25).
+# Only the major version is recorded: a minor bump does not move that boundary, and
+# keying on it would miss the cache for no gain. Linux uses the distro release rather
+# than `uname -r`, whose per-host kernel patch version would never repeat.
+case "$(uname -s)" in
+    Darwin)
+        os_release="macos-$(sw_vers -productVersion | cut -d. -f1)"
+        ;;
+    Linux)
+        if [ -r /etc/os-release ]; then
+            # shellcheck disable=SC1091
+            os_release="$(. /etc/os-release && echo "${ID:-linux}-${VERSION_ID:-unknown}")"
+        else
+            os_release="linux-unknown"
+        fi
+        ;;
+    *)
+        os_release="$(uname -s)-unknown"
+        ;;
+esac
+echo "$os_release" > "$HOME/.mise_platform"
