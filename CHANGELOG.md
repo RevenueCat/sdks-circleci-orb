@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- `install-gem-dependencies`: include the Ruby install prefix in the gem cache key. `cimg/ruby:3.3.0` and mise's Ruby 3.3.0 report the same `ruby --version`, so they shared a cache and native gems built on the cimg Ruby failed to load on the mise one (`libruby.so.3.3: cannot open shared object file`).
 - `danger`, `automatic-bump`, `tag-current-branch`, `merge-release-pr`, `enable-auto-merge-release-pr` and `insert-changelog-latest-in-main-if-needed`: bump default `ruby_version` from `3.2.0` to `3.3.0`, since fastlane will require Ruby >= 3.3. Consumers can still override `ruby_version` explicitly.
 - `automatic-bump` and `danger`: bump default `ruby_version` from `3.1.2` to `3.2.0`, matching the other release jobs. The 3.1.2 default no longer satisfies gems that require Ruby >= 3.2, causing Bundler to backtrack to unbuildable gem versions (e.g. `nokogiri 1.6.8.1`). Consumers can still override `ruby_version` explicitly.
 - `install-gem-dependencies`: retry `bundle install` once after removing `vendor/bundle` when it fails. A restored gem cache can hold a git-sourced gem whose checkout lacks the pinned revision, which bundler reports as `fatal: Could not parse object` and never recovers from, leaving every run on that cache key failing until the cache is invalidated by hand.

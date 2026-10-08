@@ -17,7 +17,12 @@ steps:
       # separated per Ruby version and architecture, so jobs running on different Rubies
       # don't collide on a single key (a cache key is immutable, so the first Ruby to
       # populate it would otherwise force every other Ruby to reinstall on every run).
-      command: ruby --version > ~/.ruby_version
+      # The install prefix is included too: cimg/ruby and mise builds of the same version
+      # print the same `ruby --version`, but native gems built on one fail to load on the
+      # other (e.g. missing libruby.so), so they must not share a cache.
+      command: |
+        ruby --version > ~/.ruby_version
+        ruby -e 'puts RbConfig::CONFIG["prefix"]' >> ~/.ruby_version
   - restore_cache:
       keys:
         - <<parameters.cache-version>>-<<parameters.cache-prefix>>-gem-cache-{{ arch }}-{{ checksum "~/.ruby_version" }}-{{ checksum "<< parameters.working_directory >>/Gemfile.lock" }}
