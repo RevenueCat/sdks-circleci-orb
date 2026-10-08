@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- `danger`, `automatic-bump`, `tag-current-branch`, `merge-release-pr`, `enable-auto-merge-release-pr` and `insert-changelog-latest-in-main-if-needed`: bump default `ruby_version` from `3.2.0` to `3.3.0`, since fastlane will require Ruby >= 3.3. Consumers can still override `ruby_version` explicitly.
 - `automatic-bump` and `danger`: bump default `ruby_version` from `3.1.2` to `3.2.0`, matching the other release jobs. The 3.1.2 default no longer satisfies gems that require Ruby >= 3.2, causing Bundler to backtrack to unbuildable gem versions (e.g. `nokogiri 1.6.8.1`). Consumers can still override `ruby_version` explicitly.
 - `install-gem-dependencies`: retry `bundle install` once after removing `vendor/bundle` when it fails. A restored gem cache can hold a git-sourced gem whose checkout lacks the pinned revision, which bundler reports as `fatal: Could not parse object` and never recovers from, leaving every run on that cache key failing until the cache is invalidated by hand.
 - `install-gem-dependencies`: include the architecture and Ruby version in the gem cache key so jobs running on different Rubies no longer collide on a single immutable key (which previously forced repeated `bundle install` reinstalls). Also add a partial-restore fallback key so a `Gemfile.lock` change reuses the previous bundle and installs only the delta.
