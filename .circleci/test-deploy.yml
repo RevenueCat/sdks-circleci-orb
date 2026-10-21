@@ -27,7 +27,7 @@ jobs:
 
   test-install-sdkman:
     macos:
-      xcode: 26.4.1
+      xcode: 26.6
     resource_class: m4pro.medium
     steps:
       - checkout
