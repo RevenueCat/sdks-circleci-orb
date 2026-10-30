@@ -1,6 +1,8 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["github>RevenueCat/renovate"],
+  "commitMessagePrefix": "",
+  "semanticCommits": "enabled",
   "packageRules": [
     {
       "matchManagers": ["mise"],
