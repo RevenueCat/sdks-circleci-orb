@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.7.1](https://github.com/RevenueCat/sdks-circleci-orb/compare/v4.7.0...v4.7.1) (2026-10-30)
+
+
+### Chores
+
+* **deps:** update mise to v2026.10.23 ([#103](https://github.com/RevenueCat/sdks-circleci-orb/issues/103)) ([f5858db](https://github.com/RevenueCat/sdks-circleci-orb/commit/f5858db24d0aa5196a3e57b1af36e46c31bfb952))
+
 ## [4.7.0](https://github.com/RevenueCat/sdks-circleci-orb/compare/v4.6.2...v4.7.0) (2026-10-08)
 
 ### Changed
