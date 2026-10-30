@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `install-mise-tools`: include the OS version in the mise cache key. `arch` covers the OS and CPU but not its version, so a toolchain built on one macOS executor could restore onto another running a different macOS. The cached toolchain holds native binaries linked against the OS they were built on, so a Ruby built under macOS 15.3 and restored onto 13.2 left its gems failing to load, reported as `bundle install` failures and "extensions are not built".
 - `install-mise`: write `~/.mise_version` so callers can key caches on the mise version, and `~/.mise_platform` so they can key on the OS version too.
 - `install-mise`: bump pinned mise to v2026.7.0 (lockfile write fixes with `--locked`).
+- `install-mise`: bump pinned mise from v2026.7.0 to v2026.10.23, which resolves Node `lts/lithium` and installs yarn from `packageManager`.
 - Current development changes [ to be moved to release ]
 - `update-error-codes`: nudge an `update-error-codes` PR that has stayed open for over a day with a comment mentioning `@RevenueCat/coresdk`.
 
