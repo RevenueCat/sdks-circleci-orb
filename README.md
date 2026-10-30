@@ -24,16 +24,9 @@ _**Edit this area to include a custom title and description.**_
 We welcome [issues](https://github.com/<organization>/<project-name>/issues) to and [pull requests](https://github.com/<organization>/<project-name>/pulls) against this repository!
 
 ### How to Publish An Update
-1. Merge pull requests with desired changes to the main branch.
-    - For the best experience, squash-and-merge and use [Conventional Commit Messages](https://conventionalcommits.org/).
-2. Find the current version of the orb.
-    - You can run `circleci orb info <namespace>/<orb-name> | grep "Latest"` to see the current version.
-3. Create a [new Release](https://github.com/<organization>/<project-name>/releases/new) on GitHub.
-    - Click "Choose a tag" and _create_ a new [semantically versioned](http://semver.org/) tag. (ex: v1.0.0)
-      - We will have an opportunity to change this before we publish if needed after the next step.
-4.  Click _"+ Auto-generate release notes"_.
-    - This will create a summary of all of the merged pull requests since the previous release.
-    - If you have used _[Conventional Commit Messages](https://conventionalcommits.org/)_ it will be easy to determine what types of changes were made, allowing you to ensure the correct version tag is being published.
-5. Now ensure the version tag selected is semantically accurate based on the changes included.
-6. Click _"Publish Release"_.
-    - This will push a new tag and trigger your publishing pipeline on CircleCI.
+
+PR titles must follow [Conventional Commits](https://conventionalcommits.org/) (checked by the `PR title` workflow), since they become the squash-merge commit message.
+
+[release-please](https://github.com/googleapis/release-please) keeps a release PR open that bumps the version and updates `CHANGELOG.md` from the merged commits. Merging it tags `vX.Y.Z`, which triggers the publishing pipeline on CircleCI.
+
+`feat` releases a minor version; `fix`, `perf`, `revert`, `chore` and `docs` release a patch. `ci`, `build`, `refactor`, `test` and `style` do not trigger a release. A `!` after the type (e.g. `feat!:`) releases a major version.

@@ -1,9 +1,4 @@
 
-**SEMVER Update Type:**
-- [ ] Major
-- [ ] Minor
-- [ ] Patch
-
 ## Description:
 
 <!---
@@ -30,4 +25,4 @@
 
 - [ ] All new jobs, commands, executors, parameters have descriptions.
 - [ ] Usage Example version numbers have been updated.
-- [ ] Changelog has been updated.
+- [ ] PR title follows [Conventional Commits](https://conventionalcommits.org/).
