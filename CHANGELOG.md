@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.8.0](https://github.com/RevenueCat/sdks-circleci-orb/compare/v4.7.1...v4.8.0) (2026-11-03)
+
+
+### Added
+
+* add hotfix job ([#109](https://github.com/RevenueCat/sdks-circleci-orb/issues/109)) ([803da93](https://github.com/RevenueCat/sdks-circleci-orb/commit/803da9329dd327928100dded4a9cea44405acc04))
+
+
+### Chores
+
+* **deps:** update dependency tuist to v4.214.1 ([#106](https://github.com/RevenueCat/sdks-circleci-orb/issues/106)) ([009f429](https://github.com/RevenueCat/sdks-circleci-orb/commit/009f42960bcc2b71fe3003570f38ecd541c03e31))
+
 ## [4.7.1](https://github.com/RevenueCat/sdks-circleci-orb/compare/v4.7.0...v4.7.1) (2026-10-30)
 
 
