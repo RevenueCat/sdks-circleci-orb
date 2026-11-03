@@ -1,0 +1,29 @@
+description: >
+  Opens a hotfix release PR that patches an older release with a PR merged into the default branch.
+  Runs the repo's `hotfix` fastlane lane, which must accept `pr:` and `version:`.
+parameters:
+  ruby_version:
+    type: string
+    default: "3.3.0"
+    description: "Ruby version to use for the Docker image"
+  pr_number:
+    type: integer
+    description: "Number of the PR, merged into the default branch, whose fix to release"
+  version:
+    type: string
+    description: "Release to patch, like 10.2.0, or a major, like 10, for its latest release"
+docker:
+  - image: cimg/ruby:<< parameters.ruby_version >>
+shell: /bin/bash --login -o pipefail
+steps:
+  - checkout
+  - setup-git-credentials
+  - trust-github-key
+  - install-gem-unix-dependencies:
+      cache-version: v1
+  - run:
+      name: Create hotfix release PR
+      environment:
+        PR_NUMBER: << parameters.pr_number >>
+        VERSION: << parameters.version >>
+      command: bundle exec fastlane hotfix "pr:$PR_NUMBER" "version:$VERSION"
