@@ -250,6 +250,64 @@ jobs:
             export PATH="$HOME/.local/share/mise/shims:$PATH"
             xcbeautify --version
 
+  test-store-private-artifacts-macos:
+    macos:
+      xcode: 26.6
+    resource_class: m4pro.medium
+    steps: &test-store-private-artifacts-steps
+      - checkout
+      - <orb-name>/store-private-artifacts:
+          path: does/not/exist
+          destination: missing
+      - run:
+          name: Verify store-private-artifacts skips, fails and installs as expected
+          # There is no bucket to upload to here. These cases cover everything up to the
+          # upload: the skips, the configuration checks, the SHA gate and the AWS CLI install.
+          command: |
+            script="$PWD/src/scripts/store-private-artifacts.sh"
+            expected="$(grep -oE 'AWSCLI_VERSION="[^"]+"' "$script" | sed -E 's/AWSCLI_VERSION="(.*)"/\1/')"
+            mkdir -p /tmp/private-artifacts-test
+            echo test > /tmp/private-artifacts-test/file.txt
+            export PARAMETERS_PATH=/tmp/private-artifacts-test/file.txt
+            export PARAMETERS_DESTINATION=file.txt
+            fake_config=(
+                PRIVATE_ARTIFACTS_BUCKET=does-not-exist
+                PRIVATE_ARTIFACTS_REGION=us-east-1
+                PRIVATE_ARTIFACTS_ROLE_ARN=arn:aws:iam::000000000000:role/does-not-exist
+            )
+
+            env -u CIRCLE_OIDC_TOKEN_V2 bash "$script" | tee /tmp/no-token.log
+            grep -q "has no OIDC token" /tmp/no-token.log
+
+            if bash "$script"; then
+                echo "ERROR: upload without bucket configuration should have failed" >&2
+                exit 1
+            fi
+
+            sed -E 's/(AWSCLI_[A-Z0-9_]+_SHA256=)"[0-9a-f]+"/\1"0000000000000000000000000000000000000000000000000000000000000000"/' \
+              "$script" > /tmp/bad-store-private-artifacts.sh
+            if env "${fake_config[@]}" AWSCLI_DIR="$HOME/.aws-cli-bad" bash /tmp/bad-store-private-artifacts.sh; then
+                echo "ERROR: install with bad SHA should have failed but succeeded" >&2
+                exit 1
+            fi
+            test ! -e "$HOME/.aws-cli-bad"
+
+            # AWS rejects the token for a role in a nonexistent account, so this must fail when
+            # assuming the role, after installing the CLI and minting a token.
+            if env "${fake_config[@]}" bash "$script" > /tmp/upload.log 2>&1; then
+                echo "ERROR: upload with a nonexistent role should have failed" >&2
+                exit 1
+            fi
+            grep -q "could not assume arn:aws:iam::000000000000:role/does-not-exist" /tmp/upload.log
+            "$HOME/.revenuecat/aws-cli/${expected}/aws" --version | grep -q "aws-cli/${expected} "
+            echo "OK: skips, configuration checks, SHA gate and AWS CLI install behave as expected"
+
+  test-store-private-artifacts-linux:
+    docker:
+      - image: cimg/base:current
+    resource_class: medium
+    steps: *test-store-private-artifacts-steps
+
 workflows:
   test-deploy:
     jobs:
@@ -299,6 +357,14 @@ workflows:
           requires:
             - orb-tools/pack
           filters: *filters
+      - test-store-private-artifacts-macos:
+          requires:
+            - orb-tools/pack
+          filters: *filters
+      - test-store-private-artifacts-linux:
+          requires:
+            - orb-tools/pack
+          filters: *filters
       - <orb-name>/await-maven-central-package:
           name: test-await-maven-central-package
           coordinates: |
@@ -325,6 +391,8 @@ workflows:
             - test-install-xcodes
             - test-install-xcbeautify
             - test-install-xcbeautify-from-mise-toml
+            - test-store-private-artifacts-macos
+            - test-store-private-artifacts-linux
             - test-await-maven-central-package
           context: orb-publishing
           filters:

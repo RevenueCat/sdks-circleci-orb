@@ -1,0 +1,30 @@
+description: >
+  Uploads a file or directory to the private CI artifacts S3 bucket, as a replacement for
+  store_artifacts, whose artifacts anyone can download from public projects. Like
+  store_artifacts, it runs even when earlier steps failed and skips missing paths.
+  Objects go under <repository>/<job number>/<parallel run index>/ in the bucket.
+  Authenticates with a CircleCI OIDC token by assuming PRIVATE_ARTIFACTS_ROLE_ARN, and
+  uploads to PRIVATE_ARTIFACTS_BUCKET in PRIVATE_ARTIFACTS_REGION: set all three in the
+  job's environment, for example through a context. Jobs without an OIDC token, such as
+  builds of pull requests from forks, skip the upload. Supports macOS and Linux, and installs
+  a pinned, SHA256-verified AWS CLI under $HOME without adding it to PATH.
+parameters:
+  path:
+    type: string
+    description: >
+      File or directory to upload. Relative paths are resolved from the job's working
+      directory, and a leading ~ expands to $HOME.
+  destination:
+    type: string
+    description: >
+      Where to put the upload within the job's folder in the bucket: the object name for a
+      file, or the folder its contents go into for a directory. Same meaning as
+      store_artifacts' destination.
+steps:
+  - run:
+      name: Store private artifacts (<< parameters.destination >>)
+      when: always
+      environment:
+        PARAMETERS_PATH: << parameters.path >>
+        PARAMETERS_DESTINATION: << parameters.destination >>
+      command: <<include(scripts/store-private-artifacts.sh)>>

@@ -1,0 +1,28 @@
+description: >
+  Upload test output to the private CI artifacts bucket instead of CircleCI's artifacts.
+  The job gets PRIVATE_ARTIFACTS_BUCKET, PRIVATE_ARTIFACTS_REGION and
+  PRIVATE_ARTIFACTS_ROLE_ARN from a context.
+usage:
+  version: 2.1
+  orbs:
+    revenuecat: revenuecat/sdks-common-config@4.9.0
+  jobs:
+    test-ios:
+      macos:
+        xcode: 26.6
+      resource_class: m4pro.medium
+      steps:
+        - checkout
+        - run:
+            name: Run tests
+            command: bundle exec fastlane test
+        - revenuecat/store-private-artifacts:
+            path: fastlane/test_output
+            destination: scan-test-output
+        - store_test_results:
+            path: fastlane/test_output
+  workflows:
+    test:
+      jobs:
+        - test-ios:
+            context: private-artifacts
