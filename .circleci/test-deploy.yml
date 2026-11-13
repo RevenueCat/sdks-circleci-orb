@@ -294,7 +294,7 @@ jobs:
 
             # AWS rejects the token for a role in a nonexistent account, so this must fail when
             # assuming the role, after installing the CLI and minting a token.
-            if env "${fake_config[@]}" bash "$script" > /tmp/upload.log 2>&1; then
+            if env "${fake_config[@]}" bash "$script" 2>&1 | tee /tmp/upload.log; then
                 echo "ERROR: upload with a nonexistent role should have failed" >&2
                 exit 1
             fi
