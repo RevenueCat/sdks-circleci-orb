@@ -312,6 +312,7 @@ workflows:
           orb-name: revenuecat/sdks-common-config
           vcs-type: << pipeline.project.type >>
           pub-type: production
+          enable-pr-comment: false
           requires:
             - orb-tools/pack
             - test-install-mise
