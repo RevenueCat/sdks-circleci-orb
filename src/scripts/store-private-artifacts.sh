@@ -11,7 +11,7 @@ AWSCLI_MACOS_SHA256="3b03319491c8cee675cf71310a43bfc48ee61c9d706ddbf5b6716d3a8c2
 AWSCLI_LINUX_X86_64_SHA256="a9ac0d635e97fab65e234ae1519fa6bd2b02d72120bf965a8ff6eaf7611f1833"
 AWSCLI_LINUX_AARCH64_SHA256="ef8b0ab093d7924caa6fd7bbc6581b92c56332eb20b4062305ce6cf63da1f440"
 
-AWSCLI_DIR="${AWSCLI_DIR:-$HOME/.revenuecat/aws-cli/$AWSCLI_VERSION}"
+AWSCLI_DIR="$HOME/.revenuecat/aws-cli/$AWSCLI_VERSION"
 
 download_dir=""
 token_file=""
@@ -157,7 +157,9 @@ target="s3://${PRIVATE_ARTIFACTS_BUCKET}/${job_prefix}/${destination}"
 
 echo "Uploading ${PARAMETERS_PATH} to ${target}..."
 if [ -d "$path" ]; then
-    "$AWSCLI_DIR/aws" s3 cp "$path" "${target}/" --recursive --no-progress
+    # Exit status 2 means the AWS CLI skipped some files, such as dangling symlinks, after
+    # warning about each one, and uploaded the rest.
+    "$AWSCLI_DIR/aws" s3 cp "$path" "${target}/" --recursive --no-progress || [ "$?" -eq 2 ]
 else
     "$AWSCLI_DIR/aws" s3 cp "$path" "$target" --no-progress
 fi

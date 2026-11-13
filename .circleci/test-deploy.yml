@@ -263,6 +263,7 @@ jobs:
           name: Verify store-private-artifacts skips, fails and installs as expected
           # There is no bucket to upload to here. These cases cover everything up to the
           # upload: the skips, the configuration checks, the SHA gate and the AWS CLI install.
+          # test-store-private-artifacts-upload covers the upload against an S3 emulator.
           command: |
             script="$PWD/src/scripts/store-private-artifacts.sh"
             expected="$(grep -oE 'AWSCLI_VERSION="[^"]+"' "$script" | sed -E 's/AWSCLI_VERSION="(.*)"/\1/')"
@@ -279,25 +280,30 @@ jobs:
             env -u CIRCLE_OIDC_TOKEN_V2 bash "$script" | tee /tmp/no-token.log
             grep -q "has no OIDC token" /tmp/no-token.log
 
-            if bash "$script"; then
+            if bash "$script" 2>&1 | tee /tmp/no-config.log; then
                 echo "ERROR: upload without bucket configuration should have failed" >&2
                 exit 1
             fi
+            grep -q "PRIVATE_ARTIFACTS_BUCKET is not set" /tmp/no-config.log
 
             sed -E 's/(AWSCLI_[A-Z0-9_]+_SHA256=)"[0-9a-f]+"/\1"0000000000000000000000000000000000000000000000000000000000000000"/' \
               "$script" > /tmp/bad-store-private-artifacts.sh
-            if env "${fake_config[@]}" AWSCLI_DIR="$HOME/.aws-cli-bad" bash /tmp/bad-store-private-artifacts.sh; then
+            if env "${fake_config[@]}" HOME=/tmp/bad-sha-home bash /tmp/bad-store-private-artifacts.sh 2>&1 | tee /tmp/bad-sha.log; then
                 echo "ERROR: install with bad SHA should have failed but succeeded" >&2
                 exit 1
             fi
-            test ! -e "$HOME/.aws-cli-bad"
+            grep -q "FAILED" /tmp/bad-sha.log
+            test ! -e "/tmp/bad-sha-home/.revenuecat/aws-cli/${expected}"
 
             # AWS rejects the token for a role in a nonexistent account, so this must fail when
-            # assuming the role, after installing the CLI and minting a token.
-            if env "${fake_config[@]}" bash "$script" 2>&1 | tee /tmp/upload.log; then
+            # assuming the role, after installing the CLI and minting a token. The job's own AWS
+            # configuration must not get in the way: the CLI has to call AssumeRoleWithWebIdentity.
+            if env "${fake_config[@]}" AWS_PROFILE=does-not-exist AWS_ACCESS_KEY_ID=not-a-key AWS_SECRET_ACCESS_KEY=not-a-secret \
+              bash "$script" 2>&1 | tee /tmp/upload.log; then
                 echo "ERROR: upload with a nonexistent role should have failed" >&2
                 exit 1
             fi
+            grep -q "AssumeRoleWithWebIdentity operation" /tmp/upload.log
             grep -q "could not assume arn:aws:iam::000000000000:role/does-not-exist" /tmp/upload.log
             "$HOME/.revenuecat/aws-cli/${expected}/aws" --version | grep -q "aws-cli/${expected} "
             echo "OK: skips, configuration checks, SHA gate and AWS CLI install behave as expected"
@@ -307,6 +313,49 @@ jobs:
       - image: cimg/base:current
     resource_class: medium
     steps: *test-store-private-artifacts-steps
+
+  test-store-private-artifacts-upload:
+    docker:
+      - image: cimg/base:current
+      - image: motoserver/moto:5.2.5
+    resource_class: medium
+    steps:
+      - checkout
+      - run:
+          name: Verify store-private-artifacts uploads to an S3 emulator
+          # moto stands in for both STS and S3, and accepts any web identity token.
+          command: |
+            script=/tmp/store-private-artifacts-moto.sh
+            sed 's#^export AWS_PAGER=""$#&\nexport AWS_ENDPOINT_URL=http://localhost:5000#' \
+              src/scripts/store-private-artifacts.sh > "$script"
+            grep -qx 'export AWS_ENDPOINT_URL=http://localhost:5000' "$script"
+            export PRIVATE_ARTIFACTS_BUCKET=private-artifacts
+            export PRIVATE_ARTIFACTS_REGION=us-east-1
+            export PRIVATE_ARTIFACTS_ROLE_ARN=arn:aws:iam::123456789012:role/private-artifacts
+            curl -fsS --retry 10 --retry-connrefused --retry-delay 1 -X PUT "http://localhost:5000/${PRIVATE_ARTIFACTS_BUCKET}" > /dev/null
+
+            mkdir -p /tmp/output/nested "/tmp/output/with space" /tmp/empty
+            echo a > /tmp/output/nested/a.txt
+            echo b > "/tmp/output/with space/b.txt"
+            ln -s /does/not/exist /tmp/output/dangling
+
+            PARAMETERS_PATH=/tmp/output PARAMETERS_DESTINATION=/test//output/ bash "$script"
+            PARAMETERS_PATH=/tmp/output/nested/a.txt PARAMETERS_DESTINATION=single.txt CIRCLE_NODE_INDEX=1 bash "$script"
+
+            PARAMETERS_PATH=/tmp/empty PARAMETERS_DESTINATION=empty bash "$script" | tee /tmp/empty.log
+            grep -q "has no files" /tmp/empty.log
+            if PARAMETERS_PATH=/tmp/output PARAMETERS_DESTINATION=a/../b bash "$script" 2>&1 | tee /tmp/dot-dot.log; then
+                echo "ERROR: upload to a destination with '..' should have failed" >&2
+                exit 1
+            fi
+            grep -q "must not contain '.' or '..' segments" /tmp/dot-dot.log
+
+            curl -fsS "http://localhost:5000/${PRIVATE_ARTIFACTS_BUCKET}?list-type=2" \
+              | grep -oE '<Key>[^<]+</Key>' | sed -E 's#</?Key>##g' | sort > /tmp/uploaded.txt
+            prefix="${CIRCLE_PROJECT_REPONAME}/${CIRCLE_BUILD_NUM}"
+            printf '%s\n' "${prefix}/0/test/output/nested/a.txt" "${prefix}/0/test/output/with space/b.txt" "${prefix}/1/single.txt" \
+              | sort | diff - /tmp/uploaded.txt
+            echo "OK: uploads land under the job's prefix, and skips and destination checks behave as expected"
 
 workflows:
   test-deploy:
@@ -365,6 +414,10 @@ workflows:
           requires:
             - orb-tools/pack
           filters: *filters
+      - test-store-private-artifacts-upload:
+          requires:
+            - orb-tools/pack
+          filters: *filters
       - <orb-name>/await-maven-central-package:
           name: test-await-maven-central-package
           coordinates: |
@@ -393,6 +446,7 @@ workflows:
             - test-install-xcbeautify-from-mise-toml
             - test-store-private-artifacts-macos
             - test-store-private-artifacts-linux
+            - test-store-private-artifacts-upload
             - test-await-maven-central-package
           context: orb-publishing
           filters:
